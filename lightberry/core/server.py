@@ -2,9 +2,10 @@ import network
 import time
 import uasyncio
 from lightberry.communication.request import Request
-from lightberry.consts import HTTPConsts
+from lightberry.consts import HTTPConsts, ServerConsts
 from lightberry.utils import common_utils
 from lightberry.config import Config
+from lightberry.core import periodic_tasks
 
 
 class Server:
@@ -64,9 +65,8 @@ class Server:
 
         self.wlan.disconnect()
 
-        while ((tries < self.wifi_connections_retries) or self.wifi_connection_retries_till_connected)\
+        while ((tries < self.wifi_connections_retries) or self.wifi_connection_retries_till_connected) \
                 and (not self.wlan.isconnected()):
-
             self.__print_debug(f"connecting to network '{self.wifi_ssid}': {tries + 1}...")
 
             self.wlan.connect(self.wifi_ssid, self.wifi_password)
@@ -79,12 +79,6 @@ class Server:
             self.__print_debug(f"WLAN config: {self.wlan.ifconfig()}")
         else:
             self.__print_debug(f"Couldn't connect to '{self.wifi_ssid}'")
-
-    def __reconnect_to_network(self):
-        if not self.wlan.isconnected() and not self.hotspot_mode:
-            self.__print_debug(f"reconnecting to '{self.wifi_ssid}'")
-
-            self.__connect_to_network()
 
     def init(self):
         self.__run_as_host() if self.hotspot_mode else self.__run_as_client()
@@ -149,7 +143,11 @@ class Server:
         if self.wlan is not None:
             self.mainloop.create_task(uasyncio.start_server(self.__requests_handler, self.host, self.port))
 
-            if self.reconnect_to_network:
+            if self.reconnect_to_network and not self.hotspot_mode:
+                self.mainloop.create_task(periodic_tasks.reconnect_to_network(self.wlan.isconnected(),
+                                                                              self.__connect_to_network,
+                                                                              ServerConsts.WIFI_RECONNECT_PERIOD))
+
                 self.__print_debug("wifi auto reconnect enabled...")
 
             self.__print_debug("mainloop running...")
