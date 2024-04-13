@@ -1,4 +1,4 @@
-from lightberry.utils.files import file_exists
+from lightberry.utils.files_utils import file_exists
 import json
 
 
