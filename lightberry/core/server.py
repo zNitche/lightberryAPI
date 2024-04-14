@@ -2,7 +2,7 @@ import network
 import time
 import asyncio
 from lightberry.communication.request import Request
-from lightberry.consts import HTTPConsts, ServerConsts
+from lightberry.consts import ServerConsts
 from lightberry.utils import common_utils
 from lightberry.config import Config
 from lightberry.core import periodic_tasks
@@ -40,6 +40,8 @@ class Server:
 
         self.mainloop = asyncio.get_event_loop()
 
+        self.__run_as_host() if self.hotspot_mode else self.__run_as_client()
+
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
 
@@ -74,9 +76,6 @@ class Server:
         else:
             self.__print_debug(f"Couldn't connect to '{self.wifi_ssid}'")
 
-    def init(self):
-        self.__run_as_host() if self.hotspot_mode else self.__run_as_client()
-
     def __run_as_client(self):
         self.__setup_wlan_as_client()
         self.__connect_to_network()
@@ -85,48 +84,50 @@ class Server:
         self.__setup_wlan_as_host()
 
     async def __load_request(self, request_stream):
-        request_header_string = ""
+        try:
+            request_header_string = ""
 
-        while True:
-            request_line = await request_stream.readline()
-            request_line = request_line.decode()
+            while True:
+                request_line = await request_stream.readline()
+                request_line = request_line.decode()
 
-            # header end
-            if request_line == "\r\n":
-                break
+                if request_line == "\r\n" or not request_line:
+                    break
 
-            request_header_string += request_line
+                request_header_string += request_line
 
-        self.__print_debug(f"request header string: {request_header_string}")
+            self.__print_debug(f"request header string: {request_header_string}")
 
-        request = Request()
-        request.parse_header(request_header_string)
+            request = Request()
+            request.parse_header(request_header_string)
 
-        content_length = request.header.get(HTTPConsts.CONTENT_LENGTH)
+            if request.content_length:
+                request_body_string = await request_stream.readexactly(request.content_length)
+                request.parse_body(request_body_string.decode())
 
-        if content_length:
-            request_body_string = await request_stream.readexactly(int(content_length))
-            request.parse_body(request_body_string.decode())
+            self.__print_debug(f"request body string: {request.body}")
 
-        self.__print_debug(f"request body string: {request.body}")
+            return request
 
-        return request
+        except Exception as e:
+            self.__print_debug(f"error while parsing request", exception=e)
+            return None
 
     async def __requests_handler(self, client_r, client_w):
         try:
             start_time = time.ticks_ms() if self.debug_mode else None
-
-            client_address = client_w.get_extra_info("peername")
+            self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
 
             request = await self.__load_request(client_r)
-            self.__print_debug(f"connection from: {client_address}")
+
+            if request:
+                pass
 
         except Exception as e:
             self.__print_debug(f"error occurred: {str(e)}", exception=e)
 
         finally:
             client_w.close()
-
             await client_w.wait_closed()
 
             self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")

@@ -1,5 +1,4 @@
-from lightberry.config import Config
-from lightberry import Server
+from lightberry import Server, Config
 from lightberry.utils import common_utils, files_utils
 
 
@@ -8,8 +7,6 @@ def main():
                              debug_enabled=Config.DEBUG)
 
     server = Server()
-
-    server.init()
     server.start()
 
 
