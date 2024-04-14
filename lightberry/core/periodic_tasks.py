@@ -17,7 +17,5 @@ async def reconnect_to_network(is_connected, connection_handler, period):
     while True:
         await asyncio.sleep_ms(period)
 
-        print(f"connected: {is_connected}")
-
         if not is_connected:
             connection_handler()

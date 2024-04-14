@@ -1,6 +1,6 @@
 import network
 import time
-import uasyncio
+import asyncio
 from lightberry.communication.request import Request
 from lightberry.consts import HTTPConsts, ServerConsts
 from lightberry.utils import common_utils
@@ -16,8 +16,6 @@ class Server:
                  wifi_ssid=Config.WIFI_SSID,
                  wifi_password=Config.WIFI_PASSWORD,
                  wifi_connections_retries=5,
-                 wifi_connection_retries_till_connected=False,
-                 wifi_connection_delay=5,
                  hotspot_name=Config.HOTSPOT_NAME,
                  hotspot_password=Config.HOTSPOT_PASSWORD,
                  hotspot_mode=Config.HOTSPOT_MODE,
@@ -30,8 +28,6 @@ class Server:
         self.wifi_password = wifi_password
 
         self.wifi_connections_retries = wifi_connections_retries
-        self.wifi_connection_retries_till_connected = wifi_connection_retries_till_connected
-        self.wifi_connection_delay = wifi_connection_delay
 
         self.hotspot_name = hotspot_name
         self.hotspot_password = hotspot_password
@@ -42,7 +38,7 @@ class Server:
         self.debug_mode = debug_mode
         self.reconnect_to_network = reconnect_to_network
 
-        self.mainloop = uasyncio.get_event_loop()
+        self.mainloop = asyncio.get_event_loop()
 
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
@@ -63,15 +59,13 @@ class Server:
     def __connect_to_network(self):
         tries = 0
 
-        self.wlan.disconnect()
+        if not self.wlan.isconnected():
+            self.wlan.disconnect()
 
-        while ((tries < self.wifi_connections_retries) or self.wifi_connection_retries_till_connected) \
-                and (not self.wlan.isconnected()):
+        while (tries < self.wifi_connections_retries) and (not self.wlan.isconnected()):
             self.__print_debug(f"connecting to network '{self.wifi_ssid}': {tries + 1}...")
 
             self.wlan.connect(self.wifi_ssid, self.wifi_password)
-
-            time.sleep(self.wifi_connection_delay)
             tries += 1
 
         if self.wlan.isconnected():
@@ -141,7 +135,7 @@ class Server:
         self.__print_debug("starting mainloop...")
 
         if self.wlan is not None:
-            self.mainloop.create_task(uasyncio.start_server(self.__requests_handler, self.host, self.port))
+            self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
 
             if self.reconnect_to_network and not self.hotspot_mode:
                 self.mainloop.create_task(periodic_tasks.reconnect_to_network(self.wlan.isconnected(),
@@ -158,4 +152,4 @@ class Server:
         self.mainloop.close()
 
     def __print_debug(self, message, exception=None):
-        common_utils.print_debug("SERVER", message, debug_enabled=self.debug_mode, exception=exception)
+        common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)
