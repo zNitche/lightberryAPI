@@ -21,13 +21,13 @@ class Request:
         self.payload_parser = RequestPayloadParser()
 
     def parse_header(self, header_string):
-        splitted_request_string = header_string.replace("\r", "").split("\n")
+        split_request_string = header_string.replace("\r", "").split("\n")
 
-        if len(splitted_request_string) > 0:
-            self.method, self.url, self.protocol = splitted_request_string[0].split()
-            splitted_request_string.pop(0)
+        if len(split_request_string) > 0:
+            self.method, self.url, self.protocol = split_request_string[0].split()
+            split_request_string.pop(0)
 
-            self.headers = self.__parse_request_string(splitted_request_string)
+            self.headers = self.__parse_request_string(split_request_string)
 
             self.__parse_cookies()
             self.__parse_query_params()
@@ -36,11 +36,11 @@ class Request:
                                                                                in self.headers.keys()) else 0
         self.content_type = self.headers.get(HTTPConsts.CONTENT_TYPE)
 
-    def __parse_request_string(self, splitted_request_string):
+    def __parse_request_string(self, split_request_string):
         request_struct = {}
 
-        if len(splitted_request_string) > 0:
-            for raw_row in splitted_request_string:
+        if len(split_request_string) > 0:
+            for raw_row in split_request_string:
                 row = raw_row.split(":")
 
                 if len(row) == 2:
@@ -50,24 +50,24 @@ class Request:
 
     def __parse_query_params(self):
         if "?" in self.url:
-            splitted_url = self.url.split("?")
+            split_url = self.url.split("?")
 
-            if len(splitted_url) == 2:
-                for param_string in splitted_url[1].split("&"):
-                    splitted_string = param_string.split("=")
+            if len(split_url) == 2:
+                for param_string in split_url[1].split("&"):
+                    split_string = param_string.split("=")
 
-                    if len(splitted_string) == 2:
-                        self.query_params[splitted_string[0]] = splitted_string[1]
+                    if len(split_string) == 2:
+                        self.query_params[split_string[0]] = split_string[1]
 
     def __parse_cookies(self):
-        if "COOKIE" in self.headers.keys():
-            splitted_cookies_data = self.headers["COOKIE"].split("; ")
+        if HTTPConsts.COOKIE in self.headers.keys():
+            split_cookies_data = self.headers[HTTPConsts.COOKIE].split("; ")
 
-            for data_row in splitted_cookies_data:
-                splitted_data = data_row.split("=")
+            for data_row in split_cookies_data:
+                split_data = data_row.split("=")
 
-                name = splitted_data[0]
-                value = splitted_data[1]
+                name = split_data[0]
+                value = split_data[1]
 
                 self.cookies[name] = value
 
