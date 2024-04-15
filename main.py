@@ -1,12 +1,14 @@
-from lightberry import Server, Config
+from lightberry import Server, App
 from lightberry.utils import common_utils, files_utils
 
 
 def main():
     common_utils.print_debug(f"Free space: {files_utils.get_free_space()} kB",
-                             debug_enabled=Config.DEBUG)
+                             debug_enabled=True)
 
-    server = Server()
+    app = App()
+
+    server = Server(app=app)
     server.start()
 
 

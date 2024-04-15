@@ -4,12 +4,13 @@ import asyncio
 from lightberry.communication.request import Request
 from lightberry.consts import ServerConsts
 from lightberry.utils import common_utils
-from lightberry.config import Config
+from lightberry.config import ServerConfig as Config
 from lightberry.core import periodic_tasks
 
 
 class Server:
     def __init__(self,
+                 app,
                  host="0.0.0.0",
                  port=Config.SERVER_PORT,
                  debug_mode=Config.DEBUG,
@@ -39,6 +40,7 @@ class Server:
         self.reconnect_to_network = reconnect_to_network
 
         self.mainloop = asyncio.get_event_loop()
+        self.app = app
 
         self.__run_as_host() if self.hotspot_mode else self.__run_as_client()
 
@@ -121,7 +123,18 @@ class Server:
             request = await self.__load_request(client_r)
 
             if request:
-                pass
+                response = await self.app.requests_handler(request)
+
+                if response.is_payload_streamed:
+                    client_w.write(f"{response.get_headers()}\r\n\r\n")
+                    await client_w.drain()
+
+                    for chunk in response.get_body():
+                        client_w.write(chunk)
+                        await client_w.drain()
+                else:
+                    client_w.write(response.get_response_string())
+                    await client_w.drain()
 
         except Exception as e:
             self.__print_debug(f"error occurred: {str(e)}", exception=e)

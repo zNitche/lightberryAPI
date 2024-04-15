@@ -1,2 +1,2 @@
 from lightberry.core.server import Server
-from lightberry.config import Config
+from lightberry.core.app import App
