@@ -2,7 +2,7 @@ from lightberry.config.base_config import BaseConfig
 
 
 class ServerConfig(BaseConfig):
-    DEBUG = 0
+    DEBUG = False
     SERVER_PORT = 80
     WIFI_SSID = ""
     WIFI_PASSWORD = ""

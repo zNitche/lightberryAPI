@@ -2,7 +2,7 @@ from lightberry.config.base_config import BaseConfig
 
 
 class AppConfig(BaseConfig):
-    DEBUG = 0
+    DEBUG = False
 
 
 AppConfig.setup(section="App", extend=True)
