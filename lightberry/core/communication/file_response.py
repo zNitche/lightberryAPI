@@ -1,5 +1,5 @@
 from lightberry.consts import HTTPConsts
-from lightberry.communication.response import Response
+from lightberry.core.communication.response import Response
 from lightberry.utils import files_utils
 
 

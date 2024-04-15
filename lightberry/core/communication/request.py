@@ -1,5 +1,5 @@
 from lightberry.consts import HTTPConsts
-from lightberry.communication.parsers import RequestPayloadParser
+from lightberry.core.communication.parsers import RequestPayloadParser
 
 
 class Request:

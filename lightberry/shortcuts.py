@@ -1,5 +1,5 @@
-from lightberry.communication.response import Response
-from lightberry.communication.file_response import FileResponse
+from lightberry.core.communication.response import Response
+from lightberry.core.communication.file_response import FileResponse
 
 
 def redirect(url):

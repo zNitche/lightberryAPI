@@ -1,11 +1,11 @@
 import network
 import time
 import asyncio
-from lightberry.communication.request import Request
+from lightberry.core.communication.request import Request
 from lightberry.consts import ServerConsts
 from lightberry.utils import common_utils
 from lightberry.config import ServerConfig as Config
-from lightberry.core import periodic_tasks
+from lightberry import periodic_tasks
 
 
 class Server:

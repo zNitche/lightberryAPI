@@ -1,4 +1,4 @@
-from lightberry.communication.response import Response
+from lightberry.core.communication.response import Response
 from lightberry.utils import common_utils
 from lightberry.config import AppConfig
 import json
@@ -16,7 +16,7 @@ class App:
         try:
             if request:
                 self.__print_debug(f"request header: {request.headers}")
-                self.__print_debug(f"request body from: {request.body} | {type(request.body)}")
+                self.__print_debug(f"request body: {request.body} | {type(request.body)}")
 
                 response = Response(status_code=200, payload=json.dumps({"test": 1}))
 

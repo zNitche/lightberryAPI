@@ -1,4 +1,4 @@
-from lightberry.communication.parsers import request_payload_parsers as parsers
+from lightberry.core.communication.parsers import request_payload_parsers as parsers
 import sys
 
 
