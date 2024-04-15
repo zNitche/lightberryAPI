@@ -12,6 +12,12 @@ def load_config(file_path):
     return config
 
 
+def get_config_section(file_path, section):
+    config = load_config(file_path)
+
+    return config.get(section) if config else None
+
+
 def from_config(key, config, fallback):
     val = config.get(key)
 
