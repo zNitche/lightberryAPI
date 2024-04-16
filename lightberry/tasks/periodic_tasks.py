@@ -1,5 +1,6 @@
 import asyncio
 from lightberry.utils import machine_utils
+from lightberry.consts import ServerConsts
 
 
 async def blink_led(period, interval=10):
@@ -13,9 +14,9 @@ async def blink_led(period, interval=10):
         await asyncio.sleep_ms(period)
 
 
-async def reconnect_to_network(is_connected, connection_handler, period):
+async def reconnect_to_network(is_connected, connection_handler):
     while True:
-        await asyncio.sleep_ms(period)
+        await asyncio.sleep_ms(ServerConsts.WIFI_RECONNECT_PERIOD)
 
-        if not is_connected:
+        if not is_connected():
             connection_handler()

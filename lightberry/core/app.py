@@ -33,7 +33,7 @@ class App:
             return response
 
     async def __process_request(self, request):
-        route, path_parameters = self.__get_route_for_url(request.url)
+        route = self.__get_route_for_url(request.url)
         response = Response(404)
 
         if route:
@@ -41,6 +41,7 @@ class App:
                 response = Response(405)
 
             else:
+                path_parameters = route.get_path_parameters_for_url(request.url)
                 response = await route.handler(request, **path_parameters)
 
         return response
@@ -58,10 +59,7 @@ class App:
 
         self.__print_debug(f"route for url '{url}': {target_route.handler.__name__ if target_route else None}")
 
-        path_parameters = target_route.get_path_parameters_for_url(url) if target_route else None
-        self.__print_debug(f"path parameters for '{url}': {path_parameters}")
-
-        return target_route, path_parameters
+        return target_route
 
     def __print_debug(self, message, exception=None):
         common_utils.print_debug(message, "APP", debug_enabled=self.debug_mode, exception=exception)
