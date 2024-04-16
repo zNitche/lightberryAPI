@@ -1,4 +1,4 @@
-from lightberry.utils import machine_utils, common_utils
+from lightberry.utils import common_utils
 from lightberry.consts import ServerConsts
 from lightberry.tasks.task_base import TaskBase
 import asyncio
@@ -7,7 +7,7 @@ import asyncio
 class BlinkLedTask(TaskBase):
     def __init__(self):
         super().__init__(periodic_interval=ServerConsts.LED_BLINK_PERIOD)
-        self.led = machine_utils.get_onboard_led()
+        self.led = common_utils.get_onboard_led()
 
     async def task(self):
         self.led.on()

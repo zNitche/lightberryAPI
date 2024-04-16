@@ -1,5 +1,6 @@
 import sys
 import gc
+import machine
 
 
 def print_debug(message, origin="CORE", debug_enabled=False, exception=None):
@@ -8,3 +9,7 @@ def print_debug(message, origin="CORE", debug_enabled=False, exception=None):
 
         if exception and isinstance(exception, Exception):
             sys.print_exception(exception)
+
+
+def get_onboard_led():
+    return machine.Pin("LED", machine.Pin.OUT)
