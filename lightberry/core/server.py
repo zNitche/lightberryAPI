@@ -2,7 +2,7 @@ import network
 import time
 import asyncio
 from lightberry.core.communication.request import Request
-from lightberry import periodic_tasks
+from lightberry.tasks import periodic_tasks
 from lightberry.core.app_context import AppContext
 from lightberry.consts import ServerConsts
 from lightberry.utils import common_utils
