@@ -22,7 +22,7 @@ class App:
                 self.__print_debug(f"request header: {request.headers}")
                 self.__print_debug(f"request body: {request.body} | {type(request.body)}")
 
-                response = self.__process_request(request)
+                response = await self.__process_request(request)
 
                 self.__print_debug(f"response header for: '{response.get_headers()}'")
 
@@ -32,12 +32,16 @@ class App:
         finally:
             return response
 
-    def __process_request(self, request):
+    async def __process_request(self, request):
         route, path_parameters = self.__get_route_for_url(request.url)
         response = Response(404)
 
         if route:
-            response = route.handler(request, **path_parameters) if request.method in route.methods else Response(405)
+            if request.method not in route.methods:
+                response = Response(405)
+
+            else:
+                response = await route.handler(request, **path_parameters)
 
         return response
 
