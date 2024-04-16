@@ -1,5 +1,6 @@
 from lightberry.consts import HTTPConsts
 from lightberry.core.communication.parsers import RequestPayloadParser
+from lightberry.utils import requests_utils
 
 
 class Request:
@@ -13,9 +14,6 @@ class Request:
         self.headers = {}
         self.body = None
 
-        self.cookies = {}
-
-        self.path_parameters = {}
         self.query_params = {}
 
         self.payload_parser = RequestPayloadParser()
@@ -55,7 +53,7 @@ class Request:
                 split_string = param_string.split("=")
 
                 if len(split_string) == 2:
-                    self.query_params[split_string[0]] = split_string[1]
+                    self.query_params[split_string[0]] = requests_utils.url_encode(split_string[1])
 
     def parse_body(self, body_string):
         body = body_string.replace("\r", "").replace("\n", "")
