@@ -1,22 +1,30 @@
-import asyncio
-from lightberry.utils import machine_utils
+from lightberry.utils import machine_utils, common_utils
 from lightberry.consts import ServerConsts
+from lightberry.tasks.task_base import TaskBase
+import asyncio
 
 
-async def blink_led(period, interval=10):
-    led = machine_utils.get_onboard_led()
+class BlinkLedTask(TaskBase):
+    def __init__(self):
+        super().__init__(periodic_interval=ServerConsts.LED_BLINK_PERIOD)
+        self.led = machine_utils.get_onboard_led()
 
-    while True:
-        led.on()
-        await asyncio.sleep_ms(interval)
-        led.off()
-
-        await asyncio.sleep_ms(period)
+    async def task(self):
+        self.led.on()
+        await asyncio.sleep_ms(150)
+        self.led.off()
 
 
-async def reconnect_to_network(is_connected, connection_handler):
-    while True:
-        await asyncio.sleep_ms(ServerConsts.WIFI_RECONNECT_PERIOD)
+class ReconnectToNetworkTask(TaskBase):
+    def __init__(self, is_connected, connection_handler, logging):
+        super().__init__(periodic_interval=ServerConsts.WIFI_RECONNECT_PERIOD,
+                         logging=logging)
 
-        if not is_connected():
-            connection_handler()
+        self.is_connected = is_connected
+        self.connection_handler = connection_handler
+
+    async def task(self):
+        common_utils.print_debug(f"[{self.__class__.__name__}] reconnecting WiFi, connected: {self.is_connected()}")
+
+        if not self.is_connected():
+            self.connection_handler()

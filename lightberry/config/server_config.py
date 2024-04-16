@@ -10,6 +10,7 @@ class ServerConfig(BaseConfig):
     HOTSPOT_MODE = ""
     HOTSPOT_NAME = ""
     HOTSPOT_PASSWORD = ""
+    BLINK_LED = True
 
 
 ServerConfig.setup(section="Server")

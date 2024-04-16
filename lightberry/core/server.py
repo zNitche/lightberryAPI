@@ -2,7 +2,7 @@ import network
 import time
 import asyncio
 from lightberry.core.communication.request import Request
-from lightberry.tasks import periodic_tasks
+from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
 from lightberry.core.app_context import AppContext
 from lightberry.utils import common_utils
 from lightberry.config import ServerConfig as Config
@@ -41,6 +41,8 @@ class Server:
 
         self.mainloop = asyncio.get_event_loop()
         self.app = app
+
+        self.background_tasks = []
 
         self.__run_as_host() if self.hotspot_mode else self.__run_as_client()
 
@@ -151,12 +153,7 @@ class Server:
         with AppContext(self.app):
             if self.wlan is not None:
                 self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
-
-                if self.reconnect_to_network and not self.hotspot_mode:
-                    self.mainloop.create_task(periodic_tasks.reconnect_to_network(self.wlan.isconnected,
-                                                                                  self.__connect_to_network))
-
-                    self.__print_debug("wifi auto reconnect enabled...")
+                self.register_background_tasks()
 
                 self.__print_debug("mainloop running...")
                 self.mainloop.run_forever()
@@ -164,6 +161,20 @@ class Server:
     def stop(self):
         self.mainloop.stop()
         self.mainloop.close()
+
+    def register_background_tasks(self):
+        if self.mainloop:
+            if self.reconnect_to_network and not self.hotspot_mode:
+                self.background_tasks.append(ReconnectToNetworkTask(self.wlan.isconnected,
+                                                                    self.__connect_to_network,
+                                                                    self.debug_mode))
+
+            if Config.BLINK_LED:
+                self.background_tasks.append(BlinkLedTask())
+
+            for task in self.background_tasks:
+                self.mainloop.create_task(task.handler())
+                self.__print_debug(f"registering task: {task.__class__.__name__}")
 
     def __print_debug(self, message, exception=None):
         common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)
