@@ -2,10 +2,11 @@ import network
 import time
 import asyncio
 from lightberry.core.communication.request import Request
+from lightberry import periodic_tasks
+from lightberry.core.app_context import AppContext
 from lightberry.consts import ServerConsts
 from lightberry.utils import common_utils
 from lightberry.config import ServerConfig as Config
-from lightberry import periodic_tasks
 
 
 class Server:
@@ -148,18 +149,19 @@ class Server:
     def start(self):
         self.__print_debug("starting mainloop...")
 
-        if self.wlan is not None:
-            self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
+        with AppContext(self.app):
+            if self.wlan is not None:
+                self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
 
-            if self.reconnect_to_network and not self.hotspot_mode:
-                self.mainloop.create_task(periodic_tasks.reconnect_to_network(self.wlan.isconnected(),
-                                                                              self.__connect_to_network,
-                                                                              ServerConsts.WIFI_RECONNECT_PERIOD))
+                if self.reconnect_to_network and not self.hotspot_mode:
+                    self.mainloop.create_task(periodic_tasks.reconnect_to_network(self.wlan.isconnected(),
+                                                                                  self.__connect_to_network,
+                                                                                  ServerConsts.WIFI_RECONNECT_PERIOD))
 
-                self.__print_debug("wifi auto reconnect enabled...")
+                    self.__print_debug("wifi auto reconnect enabled...")
 
-            self.__print_debug("mainloop running...")
-            self.mainloop.run_forever()
+                self.__print_debug("mainloop running...")
+                self.mainloop.run_forever()
 
     def stop(self):
         self.mainloop.stop()
