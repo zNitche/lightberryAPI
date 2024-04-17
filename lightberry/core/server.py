@@ -3,8 +3,7 @@ import time
 import asyncio
 from lightberry.core.communication.request import Request
 from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
-from lightberry.core.app_context import AppContext
-from lightberry.utils import common_utils
+from lightberry.utils import common_utils, requests_utils
 from lightberry.config import ServerConfig as Config
 
 
@@ -150,13 +149,12 @@ class Server:
     def start(self):
         self.__print_debug("starting mainloop...")
 
-        with AppContext(self.app):
-            if self.wlan is not None:
-                self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
-                self.register_background_tasks()
+        if self.wlan is not None:
+            self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
+            self.register_background_tasks()
 
-                self.__print_debug("mainloop running...")
-                self.mainloop.run_forever()
+            self.__print_debug("mainloop running...")
+            self.mainloop.run_forever()
 
     def stop(self):
         self.mainloop.stop()

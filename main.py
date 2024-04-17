@@ -1,14 +1,16 @@
-from lightberry import Server, App
+from lightberry import Server, App, AppContext
 from lightberry.utils import common_utils, files_utils
 
 
 def create_app():
     app = App()
 
-    from routes.api import api
-    app.add_router(api)
+    with AppContext(app):
+        from routes import api
 
-    return app
+        app.add_router(api)
+
+        return app
 
 
 def main():
