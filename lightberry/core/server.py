@@ -141,7 +141,9 @@ class Server:
 
         if self.__wlan is not None:
             self.__mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
+
             self.__register_background_tasks()
+            self.__app.register_background_tasks(self.__mainloop)
 
             self.__print_debug("mainloop running...")
             self.__mainloop.run_forever()
@@ -163,8 +165,6 @@ class Server:
             for task in self.__background_tasks:
                 self.__mainloop.create_task(task.handler())
                 self.__print_debug(f"registering task: {task.__class__.__name__}")
-
-            self.__app.register_background_tasks(self.__mainloop)
 
     def __print_debug(self, message, exception=None):
         common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)
