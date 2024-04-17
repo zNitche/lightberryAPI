@@ -88,17 +88,7 @@ class Server:
 
     async def __load_request(self, request_stream):
         try:
-            request_header_string = ""
-
-            while True:
-                request_line = await request_stream.readline()
-                request_line = request_line.decode()
-
-                if request_line == "\r\n" or not request_line:
-                    break
-
-                request_header_string += request_line
-
+            request_header_string = await requests_utils.load_request_header_from_stream(request_stream)
             self.__print_debug(f"request header string: {request_header_string}")
 
             request = Request()

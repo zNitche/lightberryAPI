@@ -18,3 +18,18 @@ def add_query_params_to_url(url, query_params):
                 url += "&"
 
     return url
+
+
+async def load_request_header_from_stream(stream):
+    request_header_string = ""
+
+    while True:
+        request_line = await stream.readline()
+        request_line = request_line.decode()
+
+        if request_line == "\r\n" or not request_line:
+            break
+
+        request_header_string += request_line
+
+    return request_header_string
