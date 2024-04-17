@@ -8,9 +8,15 @@ class Router:
 
         self.__routes = []
         self.__catch_all_route = None
+        self.after_request_handler = None
 
     def __add_route(self, url, route_handler, methods):
         self.__routes.append(Route(url, route_handler, methods))
+
+    def __check_if_url_added(self, url):
+        found = True if len([route for route in self.__routes if route.url == url]) > 0 else False
+
+        return found
 
     def route(self, url, methods=None):
         def wrapper(func):
@@ -30,10 +36,11 @@ class Router:
 
         return wrapper
 
-    def __check_if_url_added(self, url):
-        found = True if len([route for route in self.__routes if route.url == url]) > 0 else False
+    def after_request(self):
+        def wrapper(func):
+            self.after_request_handler = func
 
-        return found
+        return wrapper
 
     def match_route(self, url):
         target_route = None

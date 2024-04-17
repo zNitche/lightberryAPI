@@ -10,8 +10,14 @@ async def healthcheck(request):
     return Response(200)
 
 
-@api.route("/resource/:id/details/:number", methods=["GET"])
-async def resource_details(request, id, number):
-    data = {"id": id, "number": number, "params": str(request.query_params)}
+@api.route("/params/:p1/next/:p2", methods=["GET"])
+async def params(request, p1, p2):
+    data = {"p1": p1, "p2": p2, "params": str(request.query_params)}
 
     return Response(200, payload=jsonify(data))
+
+
+@api.after_request()
+async def after_request(response):
+    print("API router after request...")
+    return response

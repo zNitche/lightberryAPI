@@ -26,7 +26,7 @@ class App:
 
                 response = await self.__process_request(request)
 
-                self.__print_debug(f"response header for: '{response.get_headers()}'")
+                self.__print_debug(f"response header: '{response.get_headers()}'")
 
         except Exception as e:
             self.__print_debug(f"error while handing request", exception=e)
@@ -35,7 +35,7 @@ class App:
             return response
 
     async def __process_request(self, request):
-        route = self.__get_route_for_url(request.url)
+        route, router = self.__get_route_for_url(request.url)
         response = Response(404)
 
         if route:
@@ -46,6 +46,9 @@ class App:
                 path_parameters = route.get_path_parameters_for_url(request.url)
                 response = await route.handler(request, **path_parameters)
 
+            if router.after_request_handler:
+                response = await router.after_request_handler(response)
+
         if self.__after_request_handler:
             response = await self.__after_request_handler(response)
 
@@ -53,6 +56,8 @@ class App:
 
     def __get_route_for_url(self, url):
         target_route = None
+        target_router = None
+
         core_url = url.split("?")[0]
 
         for router in self.routers:
@@ -60,11 +65,12 @@ class App:
 
             if route:
                 target_route = route
+                target_router = router
                 break
 
         self.__print_debug(f"route for url '{url}': {target_route.handler.__name__ if target_route else None}")
 
-        return target_route
+        return target_route, target_router
 
     def after_request(self):
         def wrapper(func):
