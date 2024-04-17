@@ -7,8 +7,10 @@ def create_app():
 
     with AppContext(app):
         from routes import api
+        from routes import core
 
         app.add_router(api)
+        app.add_router(core)
 
         return app
 

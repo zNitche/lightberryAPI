@@ -10,6 +10,8 @@ async def healthcheck(request):
     return Response(200)
 
 
-@api.route("/resource/:id/details", methods=["GET"])
-async def resource_details(request, id):
-    return Response(200, payload=jsonify({"id": id, "params": str(request.query_params)}))
+@api.route("/resource/:id/details/:number", methods=["GET"])
+async def resource_details(request, id, number):
+    data = {"id": id, "number": number, "params": str(request.query_params)}
+
+    return Response(200, payload=jsonify(data))
