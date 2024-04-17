@@ -7,7 +7,9 @@ class App:
     def __init__(self, debug_mode=AppConfig.DEBUG):
 
         self.debug_mode = debug_mode
+
         self.routers = []
+        self.__after_request_handler = None
 
         self.__print_debug("App created...")
 
@@ -44,6 +46,9 @@ class App:
                 path_parameters = route.get_path_parameters_for_url(request.url)
                 response = await route.handler(request, **path_parameters)
 
+        if self.__after_request_handler:
+            response = await self.__after_request_handler(response)
+
         return response
 
     def __get_route_for_url(self, url):
@@ -60,6 +65,12 @@ class App:
         self.__print_debug(f"route for url '{url}': {target_route.handler.__name__ if target_route else None}")
 
         return target_route
+
+    def after_request(self):
+        def wrapper(func):
+            self.__after_request_handler = func
+
+        return wrapper
 
     def __print_debug(self, message, exception=None):
         common_utils.print_debug(message, "APP", debug_enabled=self.debug_mode, exception=exception)
