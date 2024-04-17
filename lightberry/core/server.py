@@ -164,5 +164,7 @@ class Server:
                 self.__mainloop.create_task(task.handler())
                 self.__print_debug(f"registering task: {task.__class__.__name__}")
 
+            self.__app.register_background_tasks(self.__mainloop)
+
     def __print_debug(self, message, exception=None):
         common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)

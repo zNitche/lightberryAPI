@@ -1,16 +1,22 @@
 from lightberry import Server, App, AppContext
 from lightberry.utils import common_utils, files_utils
+import tasks
+
+
+def create_routers(app):
+    from routes import api
+    from routes import core
+
+    app.add_router(api)
+    app.add_router(core)
 
 
 def create_app():
     app = App()
 
     with AppContext(app):
-        from routes import api
-        from routes import core
-
-        app.add_router(api)
-        app.add_router(core)
+        app.add_background_task(tasks.ExampleTask())
+        create_routers(app)
 
         return app
 

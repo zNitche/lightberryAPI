@@ -7,12 +7,22 @@ class App:
     def __init__(self, debug_mode=AppConfig.DEBUG):
 
         self.debug_mode = debug_mode
+        self.config = AppConfig
 
         self.__routers = []
         self.__after_request_handler = None
-        self.config = AppConfig
+
+        self.__background_tasks = []
 
         self.__print_debug("App created...")
+
+    def add_background_task(self, task):
+        self.__background_tasks.append(task)
+
+    def register_background_tasks(self, events_loop):
+        for task in self.__background_tasks:
+            events_loop.create_task(task.handler())
+            self.__print_debug(f"registering task: {task.__class__.__name__}")
 
     def add_router(self, router):
         self.__routers.append(router)
