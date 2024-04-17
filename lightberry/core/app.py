@@ -8,13 +8,14 @@ class App:
 
         self.debug_mode = debug_mode
 
-        self.routers = []
+        self.__routers = []
         self.__after_request_handler = None
+        self.config = AppConfig
 
         self.__print_debug("App created...")
 
     def add_router(self, router):
-        self.routers.append(router)
+        self.__routers.append(router)
 
     async def requests_handler(self, request):
         response = Response(500)
@@ -60,7 +61,7 @@ class App:
 
         core_url = url.split("?")[0]
 
-        for router in self.routers:
+        for router in self.__routers:
             route = router.match_route(core_url)
 
             if route:

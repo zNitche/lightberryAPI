@@ -21,61 +21,61 @@ class Server:
                  hotspot_mode=Config.HOTSPOT_MODE,
                  reconnect_to_network=Config.WIFI_AUTO_RECONNECT):
 
+        self.debug_mode = debug_mode
+        self.config = Config
+
         self.host = host
         self.port = port
 
         self.wifi_ssid = wifi_ssid
         self.wifi_password = wifi_password
 
-        self.wifi_connections_retries = wifi_connections_retries
+        self.__wifi_connections_retries = wifi_connections_retries
 
         self.hotspot_name = hotspot_name
         self.hotspot_password = hotspot_password
-        self.hotspot_mode = hotspot_mode
+        self.__hotspot_mode = hotspot_mode
 
-        self.wlan = None
+        self.__wlan = None
+        self.__reconnect_to_network = reconnect_to_network
 
-        self.debug_mode = debug_mode
-        self.reconnect_to_network = reconnect_to_network
+        self.__mainloop = asyncio.get_event_loop()
+        self.__app = app
 
-        self.mainloop = asyncio.get_event_loop()
-        self.app = app
+        self.__background_tasks = []
 
-        self.background_tasks = []
-
-        self.__run_as_host() if self.hotspot_mode else self.__run_as_client()
+        self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
 
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
 
-        self.wlan = network.WLAN(network.STA_IF)
-        self.wlan.active(True)
+        self.__wlan = network.WLAN(network.STA_IF)
+        self.__wlan.active(True)
 
     def __setup_wlan_as_host(self):
         self.__print_debug(f"setting up server as host...")
 
-        self.wlan = network.WLAN(network.AP_IF)
-        self.wlan.config(essid=self.hotspot_name, password=self.hotspot_password)
+        self.__wlan = network.WLAN(network.AP_IF)
+        self.__wlan.config(essid=self.hotspot_name, password=self.hotspot_password)
 
-        self.wlan.active(True)
-
-        self.__print_debug(f"WLAN config: {self.wlan.ifconfig()}")
+        self.__wlan.active(True)
+        self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}")
 
     def __connect_to_network(self):
         tries = 0
 
-        if not self.wlan.isconnected():
-            self.wlan.disconnect()
+        if not self.__wlan.isconnected():
+            self.__wlan.disconnect()
 
-        while (tries < self.wifi_connections_retries) and (not self.wlan.isconnected()):
+        while (tries < self.__wifi_connections_retries) and (not self.__wlan.isconnected()):
             self.__print_debug(f"connecting to network '{self.wifi_ssid}': {tries + 1}...")
 
-            self.wlan.connect(self.wifi_ssid, self.wifi_password)
+            self.__wlan.connect(self.wifi_ssid, self.wifi_password)
             tries += 1
 
-        if self.wlan.isconnected():
+        if self.__wlan.isconnected():
             self.__print_debug(f"connected to '{self.wifi_ssid}'")
-            self.__print_debug(f"WLAN config: {self.wlan.ifconfig()}")
+            self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}")
         else:
             self.__print_debug(f"Couldn't connect to '{self.wifi_ssid}'")
 
@@ -114,7 +114,7 @@ class Server:
             request = await self.__load_request(client_r)
 
             if request:
-                response = await self.app.requests_handler(request)
+                response = await self.__app.requests_handler(request)
 
                 if response.is_payload_streamed:
                     client_w.write(f"{response.get_headers()}\r\n\r\n")
@@ -139,29 +139,29 @@ class Server:
     def start(self):
         self.__print_debug("starting mainloop...")
 
-        if self.wlan is not None:
-            self.mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
-            self.register_background_tasks()
+        if self.__wlan is not None:
+            self.__mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
+            self.__register_background_tasks()
 
             self.__print_debug("mainloop running...")
-            self.mainloop.run_forever()
+            self.__mainloop.run_forever()
 
     def stop(self):
-        self.mainloop.stop()
-        self.mainloop.close()
+        self.__mainloop.stop()
+        self.__mainloop.close()
 
-    def register_background_tasks(self):
-        if self.mainloop:
-            if self.reconnect_to_network and not self.hotspot_mode:
-                self.background_tasks.append(ReconnectToNetworkTask(self.wlan.isconnected,
-                                                                    self.__connect_to_network,
-                                                                    self.debug_mode))
+    def __register_background_tasks(self):
+        if self.__mainloop:
+            if self.__reconnect_to_network and not self.__hotspot_mode:
+                self.__background_tasks.append(ReconnectToNetworkTask(self.__wlan.isconnected,
+                                                                      self.__connect_to_network,
+                                                                      self.debug_mode))
 
             if Config.BLINK_LED:
-                self.background_tasks.append(BlinkLedTask())
+                self.__background_tasks.append(BlinkLedTask())
 
-            for task in self.background_tasks:
-                self.mainloop.create_task(task.handler())
+            for task in self.__background_tasks:
+                self.__mainloop.create_task(task.handler())
                 self.__print_debug(f"registering task: {task.__class__.__name__}")
 
     def __print_debug(self, message, exception=None):
