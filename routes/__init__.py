@@ -1,5 +1,6 @@
 from routes.api import api
 from routes.core import core
+
 from lightberry import AppContext
 
 current_app = AppContext.get_current_app()
