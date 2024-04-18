@@ -17,15 +17,23 @@ class Response:
 
     def get_headers(self):
         header_rows = [f"HTTP/1.1 {self.status_code}",
-                       f"CONTENT-TYPE: {self.content_type}",
                        f"CONTENT-LENGTH: {self.get_content_length()}"]
 
         for header, value in self.headers.items():
             header_rows.append(f"{header}: {value}")
 
+        if HTTPConsts.CONTENT_TYPE not in header_rows:
+            header_rows.append(f"{HTTPConsts.CONTENT_TYPE}: {self.content_type}")
+
         header_string = "\r\n".join(header_rows)
 
         return header_string
+
+    def add_header(self, name, value):
+        normalized_name = name.upper()
+
+        if normalized_name not in self.headers.keys():
+            self.headers[normalized_name] = value
 
     def get_body(self):
         return self.payload if self.payload else ""
