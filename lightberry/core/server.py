@@ -159,7 +159,7 @@ class Server:
                                                                       self.__connect_to_network,
                                                                       self.debug_mode))
 
-            if Config.BLINK_LED:
+            if self.config.BLINK_LED:
                 self.__background_tasks.append(BlinkLedTask())
 
             for task in self.__background_tasks:
