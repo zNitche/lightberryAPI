@@ -1,4 +1,62 @@
 ## lightberryAPI 
 
-a lightweight RESTful `MicroPython` web framework & server for `RaspberryPi Pico W`,
-successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI)
+a lightweight, RESTful focused, `MicroPython` web framework & server for `RaspberryPi Pico W`,
+successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
+
+### Environment
+- Raspberry Pi Pico W 2022 version
+- Micropython for Rpi Pico W - v1.22.2 stable
+
+### Features
+- async web server, supporting 2 modes:
+  - client.
+  - host (Wi-Fi hotspot).
+- routers based routing (similar to `flask` blueprints).
+- url and query / search parameters parsing.
+- async background tasks.
+- generator based file responses.
+- separated json configs for app and server.
+- debug logging.
+
+### How to use it
+
+In order to use `lightberryAPI` in your project without keeping whole 
+codebase in repo, framework should be added as `git submodule`.
+
+In your project root directory:
+
+1. Add `lightberryAPI` as git submodule.
+```
+git submodule add -b production https://github.com/zNitche/lightberryAPI
+```
+
+2. Create `lightberry_config.json`.
+```
+wget -O lightberry_config.json https://raw.githubusercontent.com/zNitche/lightberryAPI/main/lightberry_config.template.json
+```
+
+Note that `App` section can be extended, all values passed there
+will be available in `App.config`.
+
+3. Example project structure and app setup can be found in:
+- `main.py`
+- `routes/`
+
+4. Flash microcontroller and you are good to go.
+
+### Project Goals
+
+- build universal tool I can use in my future projects.
+- complete `strawberryAPI` overhaul:
+  - full async routing.
+  - replacement of interrupts based background tasks with async schedulers.
+  - removed built in templates engine
+- implementation of better and more user / git friendly configs handling.
+- files streaming, with serving react compressed apps in mind.
+- implementation of better routing, with `catch_all` routes and after
+requests handling.
+
+### Requirements
+
+packages in `requirements.txt` used for `MicroPython` development 
+using `PyCharm Micropython Plugin`
