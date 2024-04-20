@@ -7,7 +7,7 @@ class ServerConfig(BaseConfig):
     WIFI_SSID = ""
     WIFI_PASSWORD = ""
     WIFI_AUTO_RECONNECT = True
-    HOTSPOT_MODE = ""
+    HOTSPOT_MODE = False
     HOTSPOT_NAME = ""
     HOTSPOT_PASSWORD = ""
     BLINK_LED = True
