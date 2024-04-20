@@ -11,8 +11,8 @@ class AppContext:
         current_app = None
 
     @staticmethod
-    def get_current_app():
-        if current_app is None:
+    def get_current_app(raise_exception=True):
+        if current_app is None and raise_exception:
             raise Exception("trying to access current app out of app context")
 
         return current_app

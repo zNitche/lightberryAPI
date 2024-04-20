@@ -134,7 +134,8 @@ class Server:
             client_w.close()
             await client_w.wait_closed()
 
-            self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")
+            if self.debug_mode:
+                self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")
 
     def start(self):
         self.__print_debug("starting mainloop...")
