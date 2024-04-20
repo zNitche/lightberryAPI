@@ -1,4 +1,5 @@
 from lightberry.core.routing.route import Route
+from lightberry.core.routing.catch_all_route import CatchAllRoute
 
 
 class Router:
@@ -9,6 +10,9 @@ class Router:
         self.__routes = []
         self.__catch_all_route = None
         self.after_request_handler = None
+
+    def get_routes(self):
+        return self.__routes
 
     def __add_route(self, url, route_handler, methods):
         self.__routes.append(Route(url, route_handler, methods))
@@ -30,9 +34,9 @@ class Router:
 
         return wrapper
 
-    def catch_all(self, methods=None):
+    def catch_all(self, methods=None, excluded_routes=None):
         def wrapper(func):
-            self.__catch_all_route = Route("", func, methods)
+            self.__catch_all_route = CatchAllRoute(func, methods, excluded_routes)
 
         return wrapper
 
@@ -50,7 +54,7 @@ class Router:
                 target_route = route
                 break
 
-        if self.__catch_all_route is not None and url.startswith(self.url_prefix):
+        if self.__catch_all_route is not None and not self.__catch_all_route.is_url_excluded(url):
             return self.__catch_all_route
 
         return target_route
