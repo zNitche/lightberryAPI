@@ -5,8 +5,11 @@ import json
 
 
 def redirect(url):
-    response = Response(301)
-    response.headers["LOCATION"] = url
+    response = Response(404)
+
+    if url:
+        response = Response(301)
+        response.headers["LOCATION"] = url
 
     return response
 
@@ -20,9 +23,9 @@ def send_file(file_path, filename):
 
 def url_for(endpoint_name, path_parameters=None, query_params=None):
     endpoint_url = None
-    current_app = AppContext.get_current_app()
+    app = AppContext.get_current_app()
 
-    for router in current_app.routers:
+    for router in app.routers:
         for route in router.routes:
             route_full_name = f"{router.name}.{route.handler.__name__}"
 

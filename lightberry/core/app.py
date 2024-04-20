@@ -27,6 +27,10 @@ class App:
     def add_router(self, router):
         self.__routers.append(router)
 
+    @property
+    def routers(self):
+        return self.__routers
+
     async def requests_handler(self, request):
         response = Response(500)
 
@@ -69,10 +73,8 @@ class App:
         target_route = None
         target_router = None
 
-        core_url = url.split("?")[0]
-
         for router in self.__routers:
-            route = router.match_route(core_url)
+            route = router.match_route(url)
 
             if route:
                 target_route = route
@@ -88,6 +90,18 @@ class App:
             self.__after_request_handler = func
 
         return wrapper
+
+    def get_routers_prefixes(self, excluded=None):
+        urls = []
+
+        if excluded is None:
+            excluded = []
+
+        for router in self.__routers:
+            if router.url_prefix not in excluded:
+                urls.append(router.url_prefix)
+
+        return urls
 
     def __print_debug(self, message, exception=None):
         common_utils.print_debug(message, "APP", debug_enabled=self.debug_mode, exception=exception)

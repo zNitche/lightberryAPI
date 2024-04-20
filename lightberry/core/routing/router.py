@@ -11,7 +11,8 @@ class Router:
         self.__catch_all_route = None
         self.after_request_handler = None
 
-    def get_routes(self):
+    @property
+    def routes(self):
         return self.__routes
 
     def __add_route(self, url, route_handler, methods):
