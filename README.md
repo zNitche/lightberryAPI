@@ -27,7 +27,7 @@ In your project root directory:
 
 1. Add `lightberryAPI` as git submodule.
 ```
-git submodule add -b production https://github.com/zNitche/lightberryAPI
+git submodule add --name lightberry -b production https://github.com/zNitche/lightberryAPI ./lightberry
 ```
 
 2. Create `lightberry_config.json`.
