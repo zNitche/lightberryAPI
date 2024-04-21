@@ -10,3 +10,7 @@ class BaseConfig:
         for key in config_content:
             if key in base_keys or extend:
                 setattr(cls, key, config_content[key])
+
+    @classmethod
+    def get(cls, key):
+        return cls.__dict__.get(key)
