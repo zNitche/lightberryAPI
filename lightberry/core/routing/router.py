@@ -41,6 +41,10 @@ class Router:
 
         return wrapper
 
+    def set_catch_all_excluded_routes(self, routes):
+        if self.__catch_all_route:
+            self.__catch_all_route.excluded_routes = routes
+
     def after_request(self):
         def wrapper(func):
             self.after_request_handler = func
