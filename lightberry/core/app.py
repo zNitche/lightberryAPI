@@ -9,6 +9,8 @@ class App:
         self.debug_mode = debug_mode
         self.config = AppConfig
 
+        self.host = None
+
         self.__routers = []
         self.__after_request_handler = None
 

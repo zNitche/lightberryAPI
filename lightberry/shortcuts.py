@@ -21,7 +21,7 @@ def send_file(file_path, filename):
     return response
 
 
-def url_for(endpoint_name, path_parameters=None, query_params=None):
+def url_for(endpoint_name, path_parameters=None, query_params=None, external=False):
     endpoint_url = None
     app = AppContext.get_current_app()
 
@@ -37,6 +37,9 @@ def url_for(endpoint_name, path_parameters=None, query_params=None):
 
             if endpoint_url is not None:
                 break
+
+    if endpoint_url and external:
+        endpoint_url = f"{app.host}{endpoint_url}"
 
     return endpoint_url
 
