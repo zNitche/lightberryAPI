@@ -35,6 +35,9 @@ def url_for(endpoint_name, path_parameters=None, query_params=None):
 
                 break
 
+            if endpoint_url is not None:
+                break
+
     return endpoint_url
 
 
