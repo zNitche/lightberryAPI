@@ -59,7 +59,8 @@ class Router:
                 target_route = route
                 break
 
-        if self.__catch_all_route is not None and not self.__catch_all_route.is_url_excluded(url):
-            return self.__catch_all_route
+        if target_route is None:
+            if self.__catch_all_route is not None and not self.__catch_all_route.is_url_excluded(url):
+                return self.__catch_all_route
 
         return target_route
