@@ -20,6 +20,8 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 
 ### How to use it
 
+#### As git submodule
+
 In order to use `lightberryAPI` in your project without keeping whole 
 codebase in repo, framework should be added as `git submodule`.
 
@@ -43,6 +45,85 @@ will be available in `App.config`.
 - `routes/`
 
 4. Flash microcontroller and you are good to go.
+
+#### As a MicroPython frozen module
+
+As far as I know it is the fastest method to work with, 
+you don't have to flash whole library + your project files every time you want
+to test your changes. We are gonna to build MicroPython from source with 
+`lightberryAPI` included as module, so let's get down to business.
+
+1. Install required dependencies + tools
+```
+sudo apt update
+sudo apt install cmake build-essential
+sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi
+```
+
+2. Get lightberryAPI
+```
+git clone https://github.com/zNitche/lightberryAPI.git --branch=production
+```
+
+3. Prepare module
+```
+mv lightberryAPI lightberry
+rm -rf lightberry/.git
+```
+
+4. Get MicroPython
+```
+git clone https://github.com/micropython/micropython.git
+```
+
+5. Init submodules
+```
+cd micropython
+make -C ports/rp2 BOARD=RPI_PICO_W submodules
+```
+
+6. Build cross-compiler
+```
+make -C mpy-cross
+```
+
+7. Move `lightberry` directory to target destination
+```
+cp -r ../lightberry ports/rp2/modules/
+```
+
+8. Build firmware
+```
+make -C ports/rp2 BOARD=RPI_PICO_W
+```
+
+Flash Pico (using BOOTSEL button) with newly created `firmware.uf2`
+```
+micropython/ports/rp2/build-RPI_PICO_W/firmware.uf2
+```
+Now connect via REPL, to verify if module has been included correctly type:
+```
+import lightberry
+```
+
+No errors, we are good to go
+
+##### Types hints (PyCharm + MicroPython Plugin)
+To enjoy code autocompletion we have to generate `.pyi` files
+for `lightberryAPI`
+
+1. Get `MyPy`
+```
+pip3 install mypy
+```
+
+2. Generate `.pyi` files
+```
+mkdir out
+stubgen lightberry
+```
+
+3. Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
 
 ### Project Goals
 
