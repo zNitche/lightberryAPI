@@ -73,7 +73,7 @@ rm -rf lightberry/.git
 
 4. Get MicroPython
 ```
-git clone https://github.com/micropython/micropython.git
+git clone https://github.com/micropython/micropython.git --branch v1.22.2
 ```
 
 5. Init submodules
@@ -124,6 +124,10 @@ stubgen lightberry
 ```
 
 3. Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
+
+Or if you prefer more project scoped solution...
+Copy content of `out/lightberry` to `[YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry`
+
 
 ### Project Goals
 
