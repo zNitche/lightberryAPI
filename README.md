@@ -18,6 +18,17 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 - separated json configs for app and server.
 - debug logging.
 
+### Project Goals
+- build universal tool I can use in my future projects.
+- complete `strawberryAPI` overhaul:
+  - full async routing.
+  - replacement of interrupts based background tasks with async schedulers.
+  - removed built in templates engine
+- implementation of better and more user / git friendly configs handling.
+- files streaming, with serving react compressed apps in mind.
+- implementation of better routing, with `catch_all` routes and after
+requests handling.
+
 ### How to use it
 
 #### As git submodule
@@ -123,23 +134,11 @@ mkdir out
 stubgen lightberry
 ```
 
-3. Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
+3. 
+- Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
 
-Or if you prefer more project scoped solution...
+- Or if you prefer more project scoped solution...
 Copy content of `out/lightberry` to `[YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry`
-
-
-### Project Goals
-
-- build universal tool I can use in my future projects.
-- complete `strawberryAPI` overhaul:
-  - full async routing.
-  - replacement of interrupts based background tasks with async schedulers.
-  - removed built in templates engine
-- implementation of better and more user / git friendly configs handling.
-- files streaming, with serving react compressed apps in mind.
-- implementation of better routing, with `catch_all` routes and after
-requests handling.
 
 ### Requirements
 
