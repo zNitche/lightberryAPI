@@ -13,15 +13,15 @@ class TaskBase:
         raise NotImplementedError("task not implemented")
 
     async def handler(self):
-        try:
-            while True:
+        while True:
+            try:
                 await self.task()
 
-                if not self.is_periodic:
-                    break
+            except Exception as e:
+                common_utils.print_debug(f"Error while executing task {self.__class__.__name__}",
+                                         self.logging, exception=e)
 
-                await asyncio.sleep(self.interval)
+            if not self.is_periodic:
+                break
 
-        except Exception as e:
-            common_utils.print_debug(f"Error while executing task {self.__class__.__name__}",
-                                     self.logging, exception=e)
+            await asyncio.sleep(self.interval)
