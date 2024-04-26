@@ -3,9 +3,10 @@ from lightberry.utils import common_utils, files_utils
 
 
 def create_routers(app):
-    from routes import api, core
+    from routes import api, core, home
 
     app.add_router(api)
+    app.add_router(home)
 
     core.set_catch_all_excluded_routes(app.get_routers_prefixes())
     app.add_router(core)

@@ -19,6 +19,9 @@ class App:
         self.__print_debug("App created...")
 
     def add_background_task(self, task):
+        if task is None:
+            raise Exception("Task can't be none")
+
         self.__background_tasks.append(task)
 
     def register_background_tasks(self, events_loop):
@@ -27,6 +30,9 @@ class App:
             self.__print_debug(f"registering task: {task.__class__.__name__}")
 
     def add_router(self, router):
+        if router is None:
+            raise Exception("Router can't be none")
+
         self.__routers.append(router)
 
     @property

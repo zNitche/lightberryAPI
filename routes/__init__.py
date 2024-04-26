@@ -1,5 +1,6 @@
 from routes.api import api
 from routes.core import core
+from routes.home import home
 
 from lightberry import AppContext
 
