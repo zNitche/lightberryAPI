@@ -11,8 +11,8 @@ class CatchAllRoute(Route):
         is_excluded = False
 
         if url:
-            for inner_url in self.excluded_routes:
-                if inner_url and url.startswith(inner_url):
+            for excluded_url_prefix in self.excluded_routes:
+                if excluded_url_prefix and url.startswith(excluded_url_prefix):
                     is_excluded = True
                     break
 

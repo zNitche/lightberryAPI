@@ -53,9 +53,13 @@ class Router:
 
     def match_route(self, url):
         target_route = None
+        split_url = url.split("?")[0]
+        split_test_url = split_url.split("/")
 
         for route in self.__routes:
-            if route.match_url(url):
+            is_root_route = route.url == self.url_prefix and split_url == self.url_prefix
+
+            if is_root_route or route.match_url(split_test_url, is_url_split=True):
                 target_route = route
                 break
 
