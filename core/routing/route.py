@@ -42,8 +42,8 @@ class Route:
 
         return parameters
 
-    def match_url(self, url):
-        split_test_url = url.split("?")[0].split("/")
+    def match_url(self, url, is_url_split=False):
+        split_test_url = url.split("?")[0].split("/") if not is_url_split else url
 
         lengths_match = True if len(split_test_url) == len(self.url_data) else False
         pattern_match = True
