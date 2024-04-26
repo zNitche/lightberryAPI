@@ -15,8 +15,27 @@ class Router:
     def routes(self):
         return self.__routes
 
-    def __add_route(self, url, route_handler, methods):
-        self.__routes.append(Route(url, route_handler, methods))
+    def add_route(self, url, route_handler, methods=None):
+        if not url or not route_handler:
+            raise Exception("route url and handler can't be none")
+
+        if not self.__check_if_url_added(url):
+            if url == "/":
+                route_url = f"{self.url_prefix}" if self.url_prefix else url
+
+            else:
+                route_url = f"{self.url_prefix}{url}" if self.url_prefix else url
+
+            self.__routes.append(Route(route_url, route_handler, methods))
+
+        else:
+            raise Exception(f"route for {url} has been already added")
+
+    def add_catch_all_route(self, route_handler, methods=None, excluded_routes=None):
+        if not route_handler:
+            raise Exception("catch all route handler can't be none")
+
+        self.__catch_all_route = CatchAllRoute(route_handler, methods, excluded_routes)
 
     def __check_if_url_added(self, url):
         found = True if len([route for route in self.__routes if route.url == url]) > 0 else False
@@ -25,19 +44,13 @@ class Router:
 
     def route(self, url, methods=None):
         def wrapper(func):
-            route_url = f"{self.url_prefix}{url}" if self.url_prefix else url
-
-            if not self.__check_if_url_added(url):
-                self.__add_route(route_url, func, methods)
-
-            else:
-                raise Exception(f"route for {url} has been already added")
+            self.add_route(url, func, methods)
 
         return wrapper
 
     def catch_all(self, methods=None, excluded_routes=None):
         def wrapper(func):
-            self.__catch_all_route = CatchAllRoute(func, methods, excluded_routes)
+            self.add_catch_all_route(func, methods, excluded_routes)
 
         return wrapper
 
