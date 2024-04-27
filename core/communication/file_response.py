@@ -15,6 +15,14 @@ class FileResponse(Response):
         self.content_type = self.get_content_type_by_extension() if content_type is None else content_type
         self.status_code = status_code
 
+        self.__file_check()
+
+    def __file_check(self):
+        if not files_utils.file_exists(self.file_path):
+            self.is_payload_streamed = False
+            self.status_code = 404
+            self.content_type = None
+
     def get_content_length(self):
         return files_utils.get_file_size(self.file_path)
 
@@ -25,7 +33,7 @@ class FileResponse(Response):
         return content_type_from_consts if content_type_from_consts is not None else HTTPConsts.CONTENT_TYPE_HTML
 
     def get_body(self):
-        return self.payload_streamer()
+        return self.payload_streamer() if self.is_payload_streamed and self.content_type else ""
 
     def payload_streamer(self):
         with open(self.file_path, "rb") as file:
