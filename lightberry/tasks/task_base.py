@@ -18,10 +18,16 @@ class TaskBase:
                 await self.task()
 
             except Exception as e:
-                common_utils.print_debug(f"Error while executing task {self.__class__.__name__}",
-                                         self.logging, exception=e)
+                self.__print_log(exception=e)
 
             if not self.is_periodic:
                 break
 
             await asyncio.sleep(self.interval)
+
+    def __print_log(self, message=None, exception=None):
+        if self.logging:
+            target_message = f"Error while executing task {self.__class__.__name__}"
+            target_message = f"{target_message}: {message}" if message else target_message
+
+            common_utils.print_debug(target_message, debug_enabled=True, exception=exception)
