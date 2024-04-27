@@ -33,6 +33,11 @@ class App:
         if router is None:
             raise Exception("Router can't be none")
 
+        router_existence_check = [True if router.name == r.name else False for r in self.__routers]
+
+        if True in router_existence_check:
+            raise Exception(f"Router '{router.name}' has already been added")
+
         self.__routers.append(router)
 
     @property
