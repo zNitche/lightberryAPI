@@ -3,7 +3,7 @@ import gc
 import machine
 
 
-def print_debug(message, origin="CORE", debug_enabled=False, exception=None):
+def print_debug(message: str, origin: str = "CORE", debug_enabled: bool = False, exception: Exception | None = None):
     if debug_enabled:
         print(f"[{origin}][FREE_MEM: {int(gc.mem_free() / 1024)}kB] - {message}")
 
@@ -11,5 +11,5 @@ def print_debug(message, origin="CORE", debug_enabled=False, exception=None):
             sys.print_exception(exception)
 
 
-def get_onboard_led():
+def get_onboard_led() -> machine.Pin:
     return machine.Pin("LED", machine.Pin.OUT)

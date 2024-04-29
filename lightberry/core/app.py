@@ -2,29 +2,39 @@ from lightberry.core.communication.response import Response
 from lightberry.utils import common_utils
 from lightberry.config import AppConfig
 
+from lightberry.typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Type, Callable, Optional
+    from asyncio import AbstractEventLoop
+    from lightberry.core.routing.router import Router
+    from lightberry.core.routing.route import Route
+    from lightberry.tasks.task_base import TaskBase
+    from lightberry.core.communication.request import Request
+
 
 class App:
-    def __init__(self, debug_mode=AppConfig.DEBUG):
+    def __init__(self, debug_mode: bool = AppConfig.DEBUG):
 
-        self.debug_mode = debug_mode
-        self.config = AppConfig
+        self.debug_mode: bool = debug_mode
+        self.config: Type[AppConfig] | None = AppConfig
 
-        self.host = None
+        self.host: str | None = None
 
-        self.__routers = []
-        self.__after_request_handler = None
+        self.__routers: list[Router] = []
+        self.__after_request_handler: Optional[Callable] = None
 
-        self.__background_tasks = []
+        self.__background_tasks: list[TaskBase] = []
 
         self.__print_debug("App created...")
 
-    def add_background_task(self, task):
+    def add_background_task(self, task: TaskBase):
         if task is None:
             raise Exception("Task can't be none")
 
         self.__background_tasks.append(task)
 
-    def register_background_tasks(self, events_loop):
+    def register_background_tasks(self, events_loop: AbstractEventLoop):
         for task in self.__background_tasks:
             events_loop.create_task(task.handler())
             self.__print_debug(f"registering task: {task.__class__.__name__}")
@@ -62,7 +72,7 @@ class App:
         finally:
             return response
 
-    async def __process_request(self, request):
+    async def __process_request(self, request: Request) -> Response:
         route, router = self.__get_route_for_url(request.url)
         response = Response(404)
 
@@ -82,11 +92,11 @@ class App:
 
         return response
 
-    def __get_route_for_url(self, url):
+    def __get_route_for_url(self, url: str) -> tuple[Route, Router]:
         target_route = None
         target_router = None
 
-        for router in self.__routers:
+        for router in self.__routers:  # type: Router
             route = router.match_route(url)
 
             if route:
@@ -98,23 +108,23 @@ class App:
 
         return target_route, target_router
 
-    def after_request(self):
-        def wrapper(func):
+    def after_request(self) -> Callable:
+        def wrapper(func: Callable):
             self.__after_request_handler = func
 
         return wrapper
 
-    def get_routers_prefixes(self, excluded=None):
+    def get_routers_prefixes(self, excluded: list[str] | None = None) -> list[str]:
         urls = []
 
         if excluded is None:
             excluded = []
 
-        for router in self.__routers:
+        for router in self.__routers:  # type: Router
             if router.url_prefix not in excluded:
                 urls.append(router.url_prefix)
 
         return urls
 
-    def __print_debug(self, message, exception=None):
+    def __print_debug(self, message: str, exception: Exception | None = None):
         common_utils.print_debug(message, "APP", debug_enabled=self.debug_mode, exception=exception)

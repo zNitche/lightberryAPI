@@ -2,20 +2,19 @@ from lightberry.consts import HTTPConsts
 
 
 class Response:
-    def __init__(self, status_code=200, content_type=HTTPConsts.CONTENT_TYPE_JSON, payload=None):
-        self.headers = {}
-        self.status_code = status_code
-        self.content_type = content_type
+    def __init__(self, status_code: int = 200, content_type: str = HTTPConsts.CONTENT_TYPE_JSON, payload: str = None):
+        self.headers: dict[str, ...] = {}
+        self.status_code: int = status_code
+        self.content_type: str = content_type
 
-        self.is_payload_streamed = False
+        self.is_payload_streamed: bool = False
 
-        self.payload = payload
-        self.cookies = {}
+        self.payload: str | None = payload
 
-    def get_content_length(self):
+    def get_content_length(self) -> int:
         return len(self.payload) if self.payload else 0
 
-    def get_headers(self):
+    def get_headers(self) -> str:
         header_rows = [f"HTTP/1.1 {self.status_code}",
                        f"CONTENT-LENGTH: {self.get_content_length()}"]
 
@@ -29,16 +28,16 @@ class Response:
 
         return header_string
 
-    def add_header(self, name, value):
+    def add_header(self, name: str, value):
         normalized_name = name.upper()
 
         if normalized_name not in self.headers.keys():
             self.headers[normalized_name] = value
 
-    def get_body(self):
+    def get_body(self) -> str:
         return self.payload if self.payload else ""
 
-    def get_response_string(self):
+    def get_response_string(self) -> str:
         headers = self.get_headers()
         body = self.get_body()
 

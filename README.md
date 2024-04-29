@@ -28,6 +28,7 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 - files streaming, with serving react compressed apps in mind.
 - implementation of better routing, with `catch_all` routes and after
 requests handling.
+- type hints for all modules
 
 ### How to use it
 
@@ -119,6 +120,18 @@ import lightberry
 
 No errors, we are good to go
 
+##### Types hints
+In order to have proper code hints/autocompletion working we can do two things:
+1. Copy content of `lightberry` to `[YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry`
+
+or
+
+2. Generate `.pyi` files using `mypy`. This approach is described below,
+the only difference is, target directory which in this case should be
+```
+out/lightberry -> [YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry
+```
+
 ##### Types hints (PyCharm + MicroPython Plugin)
 To enjoy code autocompletion we have to generate `.pyi` files
 for `lightberryAPI`
@@ -134,11 +147,7 @@ mkdir out
 stubgen lightberry
 ```
 
-3. 
-- Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
-
-- Or if you prefer more project scoped solution...
-Copy content of `out/lightberry` to `[YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry`
+3. Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
 
 ### Requirements
 
