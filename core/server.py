@@ -6,10 +6,18 @@ from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
 from lightberry.utils import common_utils, requests_utils
 from lightberry.config import ServerConfig as Config
 
+from lightberry.typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from network import WLAN
+    from asyncio import AbstractEventLoop, StreamReader, StreamWriter
+    from lightberry.core.app import App
+    from lightberry.tasks.task_base import TaskBase
+
 
 class Server:
     def __init__(self,
-                 app,
+                 app: App,
                  host="0.0.0.0",
                  port=Config.SERVER_PORT,
                  debug_mode=Config.DEBUG,
@@ -36,13 +44,13 @@ class Server:
         self.hotspot_password = hotspot_password
         self.__hotspot_mode = hotspot_mode
 
-        self.__wlan = None
+        self.__wlan: WLAN | None = None
         self.__reconnect_to_network = reconnect_to_network
 
-        self.__mainloop = asyncio.get_event_loop()
+        self.__mainloop: AbstractEventLoop = asyncio.get_event_loop()
         self.__app = app
 
-        self.__background_tasks = []
+        self.__background_tasks: list[TaskBase] = []
 
         self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
 
@@ -86,7 +94,7 @@ class Server:
     def __run_as_host(self):
         self.__setup_wlan_as_host()
 
-    async def __load_request(self, request_stream):
+    async def __load_request(self, request_stream: StreamReader) -> Request | None:
         try:
             request_header_string = await requests_utils.load_request_header_from_stream(request_stream)
             self.__print_debug(f"request header string: {request_header_string}")
@@ -106,7 +114,7 @@ class Server:
             self.__print_debug(f"error while parsing request", exception=e)
             return None
 
-    async def __requests_handler(self, client_r, client_w):
+    async def __requests_handler(self, client_r: StreamReader, client_w: StreamWriter):
         try:
             start_time = time.ticks_ms() if self.debug_mode else None
             self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
@@ -117,7 +125,7 @@ class Server:
                 response = await self.__app.requests_handler(request)
 
                 if response.is_payload_streamed:
-                    client_w.write(f"{response.get_headers()}\r\n\r\n")
+                    client_w.write(bytes(f"{response.get_headers()}\r\n\r\n", "utf-8"))
                     await client_w.drain()
 
                     for chunk in response.get_body():
@@ -171,5 +179,5 @@ class Server:
                 self.__mainloop.create_task(task.handler())
                 self.__print_debug(f"registering task: {task.__class__.__name__}")
 
-    def __print_debug(self, message, exception=None):
+    def __print_debug(self, message: str, exception: Exception | None = None):
         common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)

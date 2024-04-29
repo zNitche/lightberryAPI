@@ -3,6 +3,11 @@ from lightberry.consts import ServerConsts
 from lightberry.tasks.task_base import TaskBase
 import asyncio
 
+from lightberry.typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Callable
+
 
 class BlinkLedTask(TaskBase):
     def __init__(self):
@@ -16,12 +21,12 @@ class BlinkLedTask(TaskBase):
 
 
 class ReconnectToNetworkTask(TaskBase):
-    def __init__(self, is_connected, connection_handler, logging):
+    def __init__(self, is_connected: Callable[[], bool], connection_handler: Callable, logging: bool):
         super().__init__(periodic_interval=ServerConsts.WIFI_RECONNECT_PERIOD,
                          logging=logging)
 
-        self.is_connected = is_connected
-        self.connection_handler = connection_handler
+        self.is_connected: Callable[[], bool] = is_connected
+        self.connection_handler: Callable = connection_handler
 
     async def task(self):
         common_utils.print_debug(f"[{self.__class__.__name__}] reconnecting WiFi, connected: {self.is_connected()}")

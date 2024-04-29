@@ -4,7 +4,7 @@ from lightberry.core.app_context import AppContext
 import json
 
 
-def redirect(url):
+def redirect(url: str) -> Response:
     response = Response(404)
 
     if url:
@@ -14,14 +14,18 @@ def redirect(url):
     return response
 
 
-def send_file(file_path, filename):
+def send_file(file_path: str, filename: str) -> FileResponse:
     response = FileResponse(file_path=file_path)
     response.headers["Content-Disposition"] = f"attachment; filename={filename}"
 
     return response
 
 
-def url_for(endpoint_name, path_parameters=None, query_params=None, external=False):
+def url_for(endpoint_name: str,
+            path_parameters: dict[str, ...] | None = None,
+            query_params: dict[str, ...] | None = None,
+            external: bool = False) -> str | None:
+
     endpoint_url = None
     app = AppContext.get_current_app()
 
@@ -44,5 +48,5 @@ def url_for(endpoint_name, path_parameters=None, query_params=None, external=Fal
     return endpoint_url
 
 
-def jsonify(content):
+def jsonify(content: dict) -> str:
     return json.dumps(content)

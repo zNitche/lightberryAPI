@@ -2,15 +2,15 @@ from lightberry.config.base_config import BaseConfig
 
 
 class ServerConfig(BaseConfig):
-    DEBUG = False
-    SERVER_PORT = 80
-    WIFI_SSID = ""
-    WIFI_PASSWORD = ""
-    WIFI_AUTO_RECONNECT = True
-    HOTSPOT_MODE = False
-    HOTSPOT_NAME = ""
-    HOTSPOT_PASSWORD = ""
-    BLINK_LED = True
+    DEBUG: bool = False
+    SERVER_PORT: int = 80
+    WIFI_SSID: str = ""
+    WIFI_PASSWORD: str = ""
+    WIFI_AUTO_RECONNECT: bool = True
+    HOTSPOT_MODE: bool = False
+    HOTSPOT_NAME: str = ""
+    HOTSPOT_PASSWORD: str = ""
+    BLINK_LED: bool = True
 
 
 ServerConfig.setup(section="Server")

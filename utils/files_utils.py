@@ -1,7 +1,7 @@
 import os
 
 
-def file_exists(path):
+def file_exists(path: str) -> bool:
     try:
         os.stat(path)
 
@@ -10,12 +10,12 @@ def file_exists(path):
         return False
 
 
-def get_free_space():
+def get_free_space() -> float:
     stat = os.statvfs("/")
     free = stat[0] * stat[3]
 
     return free / 1024
 
 
-def get_file_size(file_path):
+def get_file_size(file_path: str) -> float:
     return os.stat(file_path)[6] if file_exists(file_path) else 0

@@ -1,4 +1,11 @@
-def url_encode(value):
+from lightberry.typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from asyncio import StreamReader
+    from typing import Awaitable
+
+
+def url_encode(value: str | int | None) -> str | None:
     # currently only spaces are supported
     if value is None:
         return value
@@ -6,7 +13,7 @@ def url_encode(value):
     return value.replace(" ", "%20")
 
 
-def add_query_params_to_url(url, query_params):
+def add_query_params_to_url(url: str, query_params: dict[str, ...]) -> str:
     if query_params:
         if not url.endswith("?"):
             url += "?"
@@ -20,7 +27,7 @@ def add_query_params_to_url(url, query_params):
     return url
 
 
-async def load_request_header_from_stream(stream):
+async def load_request_header_from_stream(stream: StreamReader) -> str:
     request_header_string = ""
 
     while True:
