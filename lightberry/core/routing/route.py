@@ -39,7 +39,7 @@ class Route:
 
     def get_path_parameters_for_url(self, url: str) -> dict[str, ...]:
         parameters = {}
-        split_url = url.split("/")
+        split_url = url.split("?")[0].split("/")
 
         for data_part in self.url_data:  # type: dict[str, int | bool | str | None]
             if data_part["is_parameter"]:
@@ -55,11 +55,17 @@ class Route:
 
         if lengths_match:
             for index, data_segment in enumerate(self.url_data):  # type: int, dict[str, int | bool | str | None]
-                split_test_url_part = split_test_url[index]
+                test_url_part = split_test_url[index]
 
-                if (split_test_url_part != data_segment["content"]) and not data_segment["is_parameter"]:
-                    pattern_match = False
-                    break
+                if data_segment["is_parameter"]:
+                    if test_url_part == "" or test_url_part is None:
+                        pattern_match = False
+                        break
+
+                else:
+                    if test_url_part != data_segment["content"]:
+                        pattern_match = False
+                        break
 
         return True if (lengths_match and pattern_match) else False
 
