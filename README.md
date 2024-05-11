@@ -23,12 +23,13 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 - complete `strawberryAPI` overhaul:
   - full async routing.
   - replacement of interrupts based background tasks with async schedulers.
-  - removed built in templates engine
+  - removed built in templates engine.
 - implementation of better and more user / git friendly configs handling.
 - files streaming, with serving react compressed apps in mind.
 - implementation of better routing, with `catch_all` routes and after
 requests handling.
-- type hints for all modules
+- type hints for all modules.
+- support for SSL/TLS
 
 ### How to use it
 
@@ -148,6 +149,31 @@ stubgen lightberry
 ```
 
 3. Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
+
+#### SSL / TLS
+
+1. Generate cert + key
+```
+openssl req -x509 -newkey rsa:2048 -nodes -out cert.pem -keyout key.pem -days 365
+```
+
+2. Convert `.pem` to `.der` for micropython ssl module
+```
+openssl x509 -in cert.pem -out cert.der -outform DER
+openssl rsa -in key.pem -out key.der -outform DER
+```
+
+3. Update `lightberry_config.json`
+```
+"CERT_FILE": "/cert.der",
+"CERT_KEY": "/key.der"
+```
+
+Remember, currently there is not reverse proxy so: 
+- `80` -> http
+- `443` -> https
+
+for the best results use another port number
 
 ### Requirements
 
