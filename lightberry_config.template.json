@@ -8,7 +8,9 @@
     "HOTSPOT_MODE": false,
     "HOTSPOT_NAME": "",
     "HOTSPOT_PASSWORD": "",
-    "BLINK_LED": true
+    "BLINK_LED": true,
+    "CERT_FILE": "",
+    "CERT_KEY": ""
   },
   "App": {
     "DEBUG": false

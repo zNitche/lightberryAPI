@@ -1,9 +1,10 @@
 import network
+import ssl
 import time
 import asyncio
 from lightberry.core.communication.request import Request
 from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
-from lightberry.utils import common_utils, requests_utils
+from lightberry.utils import common_utils, requests_utils, files_utils
 from lightberry.config import ServerConfig as Config
 
 from lightberry.typing import TYPE_CHECKING
@@ -149,7 +150,23 @@ class Server:
         self.__print_debug("starting mainloop...")
 
         if self.__wlan is not None:
-            self.__mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
+            ssl_context = None
+            ssl_cert_file = self.config.get("CERT_FILE")
+            ssl_key_file = self.config.get("CERT_KEY")
+
+            if ((ssl_cert_file and files_utils.file_exists(ssl_cert_file)) and
+                    (ssl_key_file and files_utils.file_exists(ssl_key_file))):
+
+                ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                ssl_context.load_cert_chain(ssl_cert_file, ssl_key_file)
+
+                self.__print_debug("SSL certificate has been loaded...")
+
+            server_task = asyncio.start_server(self.__requests_handler,
+                                               self.host,
+                                               self.port,
+                                               ssl=ssl_context)
+            self.__mainloop.create_task(server_task)
 
             self.__register_background_tasks()
             self.__setup_app()

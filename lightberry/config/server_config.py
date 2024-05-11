@@ -11,6 +11,8 @@ class ServerConfig(BaseConfig):
     HOTSPOT_NAME: str = ""
     HOTSPOT_PASSWORD: str = ""
     BLINK_LED: bool = True
+    CERT_FILE: str = ""
+    CERT_KEY: str = ""
 
 
 ServerConfig.setup(section="Server")
