@@ -16,6 +16,7 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 - async background tasks.
 - generator based file responses.
 - separated json configs for app and server.
+- support for SSL/TLS (HTTPS).
 - debug logging.
 
 ### Project Goals
@@ -169,11 +170,8 @@ openssl rsa -in key.pem -out key.der -outform DER
 "CERT_KEY": "/key.der"
 ```
 
-Remember, currently there is not reverse proxy so: 
-- `80` -> http
-- `443` -> https
-
-for the best results use another port number
+lightberryAPI comes with build in kind of reverse proxy (here called ssl proxy) to
+redirect requests from `SERVER_PORT` to port no. 443 (HTTPS)
 
 ### Requirements
 
