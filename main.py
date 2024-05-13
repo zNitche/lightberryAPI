@@ -15,7 +15,7 @@ def create_routers(app):
 def setup_app(app):
     import tasks
 
-    app.add_background_task(tasks.ExampleTask())
+    # app.add_background_task(tasks.ExampleTask())
     create_routers(app)
 
 

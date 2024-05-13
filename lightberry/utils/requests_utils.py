@@ -2,7 +2,6 @@ from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from asyncio import StreamReader
-    from typing import Awaitable
 
 
 def url_encode(value: str | int | None) -> str | None:
