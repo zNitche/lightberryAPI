@@ -1,3 +1,4 @@
+import asyncio
 from lightberry.core.communication.response import Response
 from lightberry.utils import common_utils
 from lightberry.config import AppConfig
@@ -62,7 +63,7 @@ class App:
                 self.__print_debug(f"request header: {request.headers}")
                 self.__print_debug(f"request body: {request.body} | {type(request.body)}")
 
-                response = await self.__process_request(request)
+                response = await asyncio.wait_for(self.__process_request(request), self.config.TIMEOUT)
 
                 self.__print_debug(f"response header: '{response.get_headers()}'")
 
