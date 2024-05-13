@@ -3,6 +3,7 @@ import ssl
 import time
 import asyncio
 from lightberry.core.communication.request import Request
+from lightberry.core.communication.response import Response
 from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
 from lightberry.utils import common_utils, requests_utils, files_utils
 from lightberry.config import ServerConfig as Config
@@ -147,6 +148,28 @@ class Server:
             if self.debug_mode:
                 self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")
 
+    async def __ssl_proxy_requests_handler(self, client_r: StreamReader, client_w: StreamWriter):
+        self.__print_debug(f"ssl proxy - connection from: {client_w.get_extra_info('peername')}")
+
+        try:
+            request = await asyncio.wait_for(self.__load_request(client_r), self.config.TIMEOUT)
+
+            if request:
+                response = Response(301)
+                response.headers["LOCATION"] = f"https://{self.__wlan.ifconfig()[0]}{request.url}"
+
+                client_w.write(bytes(response.get_response_string(), "utf-8"))
+                await client_w.drain()
+
+        except Exception as e:
+            self.__print_debug(f"error occurred: {str(e)}", exception=e)
+
+        finally:
+            client_w.close()
+            await client_w.wait_closed()
+
+            self.__print_debug(f"ssl proxy - connection closed")
+
     def __init_server(self):
         ssl_context = None
         ssl_cert_file = self.config.get("CERT_FILE")
@@ -158,6 +181,7 @@ class Server:
             ssl_context.load_cert_chain(ssl_cert_file, ssl_key_file)
 
             self.__print_debug("SSL certificate has been loaded...")
+            self.__init_ssl_proxy()
 
         target_port = self.port if ssl_context is None else 443
         server_task = asyncio.start_server(self.__requests_handler,
@@ -166,6 +190,14 @@ class Server:
                                            ssl=ssl_context)
 
         self.__mainloop.create_task(server_task)
+
+    def __init_ssl_proxy(self):
+        proxy_server_task = asyncio.start_server(self.__ssl_proxy_requests_handler,
+                                                 self.host,
+                                                 self.port)
+
+        self.__mainloop.create_task(proxy_server_task)
+        self.__print_debug(f"ssl proxy running at port: {self.port}")
 
     def start(self):
         self.__print_debug("starting mainloop...")
