@@ -116,24 +116,25 @@ class Server:
             return None
 
     async def __requests_handler(self, client_r: StreamReader, client_w: StreamWriter):
+        self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
+
         try:
             start_time = time.ticks_ms() if self.debug_mode else None
-            self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
 
-            request = await self.__load_request(client_r)
+            request = await asyncio.wait_for(self.__load_request(client_r), self.config.TIMEOUT)
 
             if request:
-                response = await self.__app.requests_handler(request)
+                response = await asyncio.wait_for(self.__app.requests_handler(request), self.__app.config.TIMEOUT)
 
                 if response.is_payload_streamed:
                     client_w.write(bytes(f"{response.get_headers()}\r\n\r\n", "utf-8"))
                     await client_w.drain()
 
                     for chunk in response.get_body():
-                        client_w.write(chunk)
+                        client_w.write(bytes(chunk, "utf-8"))
                         await client_w.drain()
                 else:
-                    client_w.write(response.get_response_string())
+                    client_w.write(bytes(response.get_response_string(), "utf-8"))
                     await client_w.drain()
 
         except Exception as e:
@@ -146,32 +147,38 @@ class Server:
             if self.debug_mode:
                 self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")
 
+    def __init_server(self):
+        ssl_context = None
+        ssl_cert_file = self.config.get("CERT_FILE")
+        ssl_key_file = self.config.get("CERT_KEY")
+
+        if ((ssl_cert_file and files_utils.file_exists(ssl_cert_file)) and
+                (ssl_key_file and files_utils.file_exists(ssl_key_file))):
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ssl_context.load_cert_chain(ssl_cert_file, ssl_key_file)
+
+            self.__print_debug("SSL certificate has been loaded...")
+
+        target_port = self.port if ssl_context is None else 443
+        server_task = asyncio.start_server(self.__requests_handler,
+                                           self.host,
+                                           target_port,
+                                           ssl=ssl_context)
+
+        self.__mainloop.create_task(server_task)
+
     def start(self):
         self.__print_debug("starting mainloop...")
 
         if self.__wlan is not None:
-            ssl_context = None
-            ssl_cert_file = self.config.get("CERT_FILE")
-            ssl_key_file = self.config.get("CERT_KEY")
-
-            if ((ssl_cert_file and files_utils.file_exists(ssl_cert_file)) and
-                    (ssl_key_file and files_utils.file_exists(ssl_key_file))):
-
-                ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-                ssl_context.load_cert_chain(ssl_cert_file, ssl_key_file)
-
-                self.__print_debug("SSL certificate has been loaded...")
-
-            server_task = asyncio.start_server(self.__requests_handler,
-                                               self.host,
-                                               self.port,
-                                               ssl=ssl_context)
-            self.__mainloop.create_task(server_task)
+            self.__init_server()
 
             self.__register_background_tasks()
             self.__setup_app()
 
+            self.__print_debug(f"server listening at: {self.__app.host}")
             self.__print_debug("mainloop running...")
+
             self.__mainloop.run_forever()
 
     def stop(self):

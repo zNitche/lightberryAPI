@@ -13,6 +13,7 @@ class ServerConfig(BaseConfig):
     BLINK_LED: bool = True
     CERT_FILE: str = ""
     CERT_KEY: str = ""
+    TIMEOUT: int = 10
 
 
 ServerConfig.setup(section="Server")
