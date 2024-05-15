@@ -4,7 +4,7 @@ from lightberry.core.routing.catch_all_route import CatchAllRoute
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Callable, Awaitable
+    from typing import Callable, Awaitable, Coroutine
     from lightberry.core.communication.response import Response
     from lightberry.core.communication.request import Request
 
@@ -24,7 +24,7 @@ class Router:
 
     def add_route(self, url: str,
                   route_handler: Callable[[Request, ...],
-                  Awaitable[Response]],
+                  Coroutine[Response]],
                   methods: list[str] | None = None):
 
         if not url or not route_handler:

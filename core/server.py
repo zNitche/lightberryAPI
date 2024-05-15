@@ -1,25 +1,24 @@
 import network
-import time
 import asyncio
-from lightberry.core.communication.request import Request
 from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
-from lightberry.utils import common_utils, requests_utils
+from lightberry.core.sockets_servers.http import AppServer
+from lightberry.core.sockets_servers.http import SslProxyServer
+from lightberry.utils import common_utils
 from lightberry.config import ServerConfig as Config
 
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from network import WLAN
-    from asyncio import AbstractEventLoop, StreamReader, StreamWriter
+    from asyncio import AbstractEventLoop
     from lightberry.core.app import App
     from lightberry.tasks.task_base import TaskBase
+    from lightberry.core.sockets_servers.http import HttpSocketServer
 
 
 class Server:
     def __init__(self,
                  app: App,
-                 host="0.0.0.0",
-                 port=Config.SERVER_PORT,
                  debug_mode=Config.DEBUG,
                  wifi_ssid=Config.WIFI_SSID,
                  wifi_password=Config.WIFI_PASSWORD,
@@ -31,9 +30,6 @@ class Server:
 
         self.debug_mode = debug_mode
         self.config = Config
-
-        self.host = host
-        self.port = port
 
         self.wifi_ssid = wifi_ssid
         self.wifi_password = wifi_password
@@ -50,6 +46,7 @@ class Server:
         self.__mainloop: AbstractEventLoop = asyncio.get_event_loop()
         self.__app = app
 
+        self.__http_socket_servers: list[HttpSocketServer] = []
         self.__background_tasks: list[TaskBase] = []
 
         self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
@@ -94,75 +91,44 @@ class Server:
     def __run_as_host(self):
         self.__setup_wlan_as_host()
 
-    async def __load_request(self, request_stream: StreamReader) -> Request | None:
-        try:
-            request_header_string = await requests_utils.load_request_header_from_stream(request_stream)
-            self.__print_debug(f"request header string: {request_header_string}")
+    def __init_http_socket_servers(self):
+        app_server = AppServer(self.__app, port=self.config.SERVER_PORT)
+        app_server.setup()
 
-            request = Request()
-            request.parse_header(request_header_string)
+        self.__http_socket_servers.append(app_server)
 
-            if request.content_length:
-                request_body_string = await request_stream.readexactly(request.content_length)
-                request.parse_body(request_body_string.decode())
+        if app_server.ssl_context is not None:
+            proxy_server = SslProxyServer(self.__wlan, port=self.config.SERVER_PORT)
+            proxy_server.setup()
 
-            self.__print_debug(f"request body string: {request.body}")
+            self.__http_socket_servers.append(proxy_server)
 
-            return request
-
-        except Exception as e:
-            self.__print_debug(f"error while parsing request", exception=e)
-            return None
-
-    async def __requests_handler(self, client_r: StreamReader, client_w: StreamWriter):
-        try:
-            start_time = time.ticks_ms() if self.debug_mode else None
-            self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
-
-            request = await self.__load_request(client_r)
-
-            if request:
-                response = await self.__app.requests_handler(request)
-
-                if response.is_payload_streamed:
-                    client_w.write(bytes(f"{response.get_headers()}\r\n\r\n", "utf-8"))
-                    await client_w.drain()
-
-                    for chunk in response.get_body():
-                        client_w.write(chunk)
-                        await client_w.drain()
-                else:
-                    client_w.write(response.get_response_string())
-                    await client_w.drain()
-
-        except Exception as e:
-            self.__print_debug(f"error occurred: {str(e)}", exception=e)
-
-        finally:
-            client_w.close()
-            await client_w.wait_closed()
-
-            if self.debug_mode:
-                self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")
+        for server in self.__http_socket_servers:  # type: HttpSocketServer
+            self.__mainloop.create_task(server.server_task)
+            self.__print_debug(f"Task for {server.__class__.__name__} has been created")
 
     def start(self):
         self.__print_debug("starting mainloop...")
 
         if self.__wlan is not None:
-            self.__mainloop.create_task(asyncio.start_server(self.__requests_handler, self.host, self.port))
+            self.__init_http_socket_servers()
 
             self.__register_background_tasks()
             self.__setup_app()
 
+            self.__print_debug(f"server listening at: {self.__app.host}")
             self.__print_debug("mainloop running...")
+
             self.__mainloop.run_forever()
+        else:
+            self.__print_debug("Couldn't start server wlan is None")
 
     def stop(self):
         self.__mainloop.stop()
         self.__mainloop.close()
 
     def __setup_app(self):
-        self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.port}"
+        self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.config.SERVER_PORT}"
         self.__app.register_background_tasks(self.__mainloop)
 
     def __register_background_tasks(self):
