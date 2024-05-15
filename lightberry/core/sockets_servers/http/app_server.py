@@ -1,6 +1,6 @@
 from lightberry.config import ServerConfig as Config
 from lightberry.core.sockets_servers.http import HttpSocketServer
-from lightberry.utils import files_utils
+from lightberry.utils import files_utils, requests_utils
 import ssl
 import time
 import asyncio
@@ -32,14 +32,14 @@ class AppServer(HttpSocketServer):
                 response = await asyncio.wait_for(self.__app.requests_handler(request), self.__app.config.TIMEOUT)
 
                 if response.is_payload_streamed:
-                    client_w.write(bytes(f"{response.get_headers()}\r\n\r\n", "utf-8"))
+                    requests_utils.write_to_stream(client_w, f"{response.get_headers()}\r\n\r\n")
                     await client_w.drain()
 
                     for chunk in response.get_body():
-                        client_w.write(bytes(chunk, "utf-8"))
+                        requests_utils.write_to_stream(client_w, chunk)
                         await client_w.drain()
                 else:
-                    client_w.write(bytes(response.get_response_string(), "utf-8"))
+                    requests_utils.write_to_stream(client_w, response.get_response_string())
                     await client_w.drain()
 
         except Exception as e:

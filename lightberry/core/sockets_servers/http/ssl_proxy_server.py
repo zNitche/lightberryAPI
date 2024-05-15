@@ -1,6 +1,7 @@
 from lightberry.config import ServerConfig as Config
 from lightberry.core.communication.response import Response
 from lightberry.core.sockets_servers.http import HttpSocketServer
+from lightberry.utils import requests_utils
 import asyncio
 
 from lightberry.typing import TYPE_CHECKING
@@ -27,7 +28,7 @@ class SslProxyServer(HttpSocketServer):
                 response = Response(301)
                 response.add_header("LOCATION", f"https://{self.hostname}{request.url}")
 
-                client_w.write(bytes(response.get_response_string(), "utf-8"))
+                requests_utils.write_to_stream(client_w, response.get_response_string())
                 await client_w.drain()
 
         except Exception as e:

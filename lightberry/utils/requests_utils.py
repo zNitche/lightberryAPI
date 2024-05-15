@@ -39,3 +39,7 @@ async def load_request_header_from_stream(stream: StreamReader) -> str:
         request_header_string += request_line
 
     return request_header_string
+
+
+def write_to_stream(stream, data, encoding="utf-8"):
+    stream.write(bytes(data, encoding))
