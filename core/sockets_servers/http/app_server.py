@@ -32,7 +32,7 @@ class AppServer(HttpSocketServer):
                 response = await asyncio.wait_for(self.__app.requests_handler(request), self.__app.config.TIMEOUT)
 
                 if response.is_payload_streamed:
-                    requests_utils.write_to_stream(client_w, f"{response.get_headers()}\r\n\r\n")
+                    requests_utils.write_to_stream(client_w, f"{response.get_headers_string()}\r\n\r\n")
                     await client_w.drain()
 
                     for chunk in response.get_body():

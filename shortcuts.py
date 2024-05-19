@@ -9,14 +9,14 @@ def redirect(url: str) -> Response:
 
     if url:
         response = Response(301)
-        response.headers["LOCATION"] = url
+        response.add_header("LOCATION", url)
 
     return response
 
 
 def send_file(file_path: str, filename: str) -> FileResponse:
     response = FileResponse(file_path=file_path)
-    response.headers["Content-Disposition"] = f"attachment; filename={filename}"
+    response.add_header("Content-Disposition", f"attachment; filename={filename}")
 
     return response
 
