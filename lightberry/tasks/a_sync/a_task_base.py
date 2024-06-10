@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from typing import Awaitable
 
 
-class TaskBase:
+class ATaskBase:
     def __init__(self, periodic_interval: int = 0, logging: bool = False):
         self.is_periodic: bool = periodic_interval > 0
         self.interval: int = periodic_interval

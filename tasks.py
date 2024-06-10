@@ -1,4 +1,4 @@
-from lightberry.tasks.a_sync.task_base import TaskBase as ATaskBase
+from lightberry.tasks.a_sync.a_task_base import ATaskBase
 from lightberry.tasks.threading.task_base import TaskBase
 
 

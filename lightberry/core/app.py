@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from lightberry.core.routing.router import Router
     from lightberry.core.routing.route import Route
-    from lightberry.tasks.a_sync import TaskBase as ATaskBase
+    from lightberry.tasks.a_sync import ATaskBase
     from lightberry.tasks.threading import TaskBase
     from lightberry.core.communication.request import Request
 
