@@ -1,10 +1,6 @@
 from lightberry.utils import common_utils
-import asyncio
-
-from lightberry.typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Awaitable
+import time
+import _thread
 
 
 class TaskBase:
@@ -14,13 +10,16 @@ class TaskBase:
 
         self.logging: int = logging
 
-    async def task(self) -> Awaitable[None]:
+    def task(self):
         raise NotImplementedError("task not implemented")
 
-    async def handler(self):
+    def start(self):
+        _thread.start_new_thread(self.handler, ())
+
+    def handler(self):
         while True:
             try:
-                await self.task()
+                self.task()
 
             except Exception as e:
                 self.__print_log(exception=e)
@@ -28,11 +27,11 @@ class TaskBase:
             if not self.is_periodic:
                 break
 
-            await asyncio.sleep(self.interval)
+            time.sleep(self.interval)
 
     def __print_log(self, message: str | None = None, exception: Exception | None = None):
         if self.logging:
-            target_message = f"Error while executing task {self.__class__.__name__}"
+            target_message = f"[THREADING] Error while executing task {self.__class__.__name__}"
             target_message = f"{target_message}: {message}" if message else target_message
 
             common_utils.print_debug(target_message, debug_enabled=True, exception=exception)
