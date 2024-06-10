@@ -13,7 +13,7 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
   - host (Wi-Fi hotspot).
 - routers based routing (similar to `flask` blueprints).
 - url and query / search parameters parsing.
-- async background tasks.
+- async / threading background tasks.
 - generator based file responses.
 - separated json configs for app and server.
 - support for SSL/TLS (HTTPS).
@@ -33,6 +33,12 @@ requests handling.
 - support for SSL/TLS
 
 ### How to use it
+
+#### Build python package 
+(doesn't seem to work with Micropython on RP2040)
+```
+python3 -m build --sdist
+```
 
 #### As git submodule
 
@@ -176,4 +182,8 @@ redirect requests from `SERVER_PORT` to port no. 443 (HTTPS)
 ### Requirements
 
 packages in `requirements.txt` used for `MicroPython` development 
-using `PyCharm Micropython Plugin`
+using `PyCharm Micropython Plugin`.
+
+
+Because repl in `Micropython plugin 1.4.0` doesn't seem to work with `Pycharm CE 2024.1.3`,
+added `rshell` to replace it.
