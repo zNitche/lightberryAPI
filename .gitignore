@@ -4,3 +4,5 @@ lightberry_config.json
 *.key
 *.crt
 *.der
+dist/
+lightberry.egg-info/
