@@ -10,7 +10,8 @@ if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from lightberry.core.routing.router import Router
     from lightberry.core.routing.route import Route
-    from lightberry.tasks.task_base import TaskBase
+    from lightberry.tasks.a_sync import TaskBase as ATaskBase
+    from lightberry.tasks.threading import TaskBase
     from lightberry.core.communication.request import Request
 
 
@@ -25,20 +26,33 @@ class App:
         self.__routers: list[Router] = []
         self.__after_request_handler: Optional[Callable] = None
 
+        self.__async_background_tasks: list[ATaskBase] = []
         self.__background_tasks: list[TaskBase] = []
 
         self.__print_debug("App created...")
 
-    def add_background_task(self, task: TaskBase):
+    def add_background_task(self, task: TaskBase | ATaskBase):
         if task is None:
             raise Exception("Task can't be none")
 
-        self.__background_tasks.append(task)
+        if isinstance(task, ATaskBase):
+            self.__async_background_tasks.append(task)
 
-    def register_background_tasks(self, events_loop: AbstractEventLoop):
-        for task in self.__background_tasks:
+        elif isinstance(task, TaskBase):
+            self.__background_tasks.append(task)
+
+        else:
+            raise Exception("unrecognized task type")
+
+    def register_async_background_tasks(self, events_loop: AbstractEventLoop):
+        for task in self.__async_background_tasks:  # type: ATaskBase
             events_loop.create_task(task.handler())
-            self.__print_debug(f"registering task: {task.__class__.__name__}")
+            self.__print_debug(f"[TASKS] registering async task: {task.__class__.__name__}")
+
+    def register_background_tasks(self):
+        for task in self.__background_tasks:  # type: TaskBase
+            task.start()
+            self.__print_debug(f"[TASKS] registering threading task: {task.__class__.__name__}")
 
     def add_router(self, router):
         if router is None:

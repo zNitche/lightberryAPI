@@ -1,6 +1,6 @@
 import network
 import asyncio
-from lightberry.tasks.periodic_tasks import ReconnectToNetworkTask, BlinkLedTask
+from lightberry.tasks.a_sync import ReconnectToNetworkTask, BlinkLedTask
 from lightberry.core.sockets_servers.http import AppServer
 from lightberry.core.sockets_servers.http import SslProxyServer
 from lightberry.utils import common_utils
@@ -9,10 +9,9 @@ from lightberry.config import ServerConfig as Config
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from network import WLAN
-    from asyncio import AbstractEventLoop
     from lightberry.core.app import App
-    from lightberry.tasks.task_base import TaskBase
+    from lightberry.tasks.a_sync import TaskBase as ATaskBase
+    from lightberry.tasks.threading import TaskBase
     from lightberry.core.sockets_servers.http import HttpSocketServer
 
 
@@ -40,13 +39,15 @@ class Server:
         self.hotspot_password = hotspot_password
         self.__hotspot_mode = hotspot_mode
 
-        self.__wlan: WLAN | None = None
+        self.__wlan: network.WLAN | None = None
         self.__reconnect_to_network = reconnect_to_network
 
-        self.__mainloop: AbstractEventLoop = asyncio.get_event_loop()
+        self.__mainloop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         self.__app = app
 
         self.__http_socket_servers: list[HttpSocketServer] = []
+
+        self.__async_background_tasks: list[ATaskBase] = []
         self.__background_tasks: list[TaskBase] = []
 
         self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
@@ -105,7 +106,7 @@ class Server:
 
         for server in self.__http_socket_servers:  # type: HttpSocketServer
             self.__mainloop.create_task(server.server_task)
-            self.__print_debug(f"Task for {server.__class__.__name__} has been created")
+            self.__print_debug(f"[SOCKET SERVER] Task for {server.__class__.__name__} has been created")
 
     def start(self):
         self.__print_debug("starting mainloop...")
@@ -113,13 +114,14 @@ class Server:
         if self.__wlan is not None:
             self.__init_http_socket_servers()
 
-            self.__register_background_tasks()
+            self.__register_async_background_tasks()
             self.__setup_app()
 
             self.__print_debug(f"server listening at: {self.__app.host}")
             self.__print_debug("mainloop running...")
 
             self.__mainloop.run_forever()
+
         else:
             self.__print_debug("Couldn't start server wlan is None")
 
@@ -129,21 +131,23 @@ class Server:
 
     def __setup_app(self):
         self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.config.SERVER_PORT}"
-        self.__app.register_background_tasks(self.__mainloop)
 
-    def __register_background_tasks(self):
+        self.__app.register_async_background_tasks(self.__mainloop)
+        self.__app.register_background_tasks()
+
+    def __register_async_background_tasks(self):
         if self.__mainloop:
             if self.__reconnect_to_network and not self.__hotspot_mode:
-                self.__background_tasks.append(ReconnectToNetworkTask(self.__wlan.isconnected,
-                                                                      self.__connect_to_network,
-                                                                      self.debug_mode))
+                self.__async_background_tasks.append(ReconnectToNetworkTask(self.__wlan.isconnected,
+                                                                            self.__connect_to_network,
+                                                                            self.debug_mode))
 
             if self.config.BLINK_LED:
-                self.__background_tasks.append(BlinkLedTask())
+                self.__async_background_tasks.append(BlinkLedTask())
 
-            for task in self.__background_tasks:
+            for task in self.__async_background_tasks:  # type: ATaskBase
                 self.__mainloop.create_task(task.handler())
-                self.__print_debug(f"registering task: {task.__class__.__name__}")
+                self.__print_debug(f"[TASKS] registering async task: {task.__class__.__name__}")
 
     def __print_debug(self, message: str, exception: Exception | None = None):
         common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)

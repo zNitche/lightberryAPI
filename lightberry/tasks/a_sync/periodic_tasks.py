@@ -1,6 +1,6 @@
 from lightberry.utils import common_utils
 from lightberry.consts import ServerConsts
-from lightberry.tasks.task_base import TaskBase
+from lightberry.tasks.a_sync import TaskBase
 import asyncio
 
 from lightberry.typing import TYPE_CHECKING

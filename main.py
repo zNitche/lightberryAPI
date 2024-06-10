@@ -12,10 +12,15 @@ def create_routers(app):
     app.add_router(core)
 
 
-def setup_app(app):
+def setup_tasks(app):
     import tasks
 
-    # app.add_background_task(tasks.ExampleTask())
+    app.add_background_task(tasks.ExampleAsyncTask())
+    app.add_background_task(tasks.ExampleThreadingTask())
+
+
+def setup_app(app):
+    setup_tasks(app)
     create_routers(app)
 
 

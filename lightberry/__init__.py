@@ -5,4 +5,3 @@ from lightberry.core.routing.router import Router
 from lightberry.core.communication.request import Request
 from lightberry.core.communication.response import Response
 from lightberry.core.communication.file_response import FileResponse
-from lightberry.tasks.task_base import TaskBase
