@@ -20,4 +20,4 @@ async def timeout_test(request):
 home = Router("home", url_prefix="/home")
 home.add_route("/", root)
 home.add_route("/test", home_test)
-home.add_route("/timeout_test", timeout_test)
+home.add_route("/timeout-test", timeout_test)

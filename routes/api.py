@@ -19,7 +19,7 @@ async def healthcheck(request):
 async def params(request: Request, p1, p2):
     data = {"p1": p1, "p2": p2, "params": str(request.query_params)}
 
-    return Response(200, payload=jsonify(data))
+    return Response(payload=jsonify(data))
 
 
 @api.after_request()

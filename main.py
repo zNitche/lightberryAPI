@@ -16,7 +16,7 @@ def setup_tasks(app):
     import tasks
 
     app.add_background_task(tasks.ExampleAsyncTask())
-    app.add_background_task(tasks.ExampleThreadingTask())
+    # app.add_background_task(tasks.ExampleThreadingTask())
 
 
 def setup_app(app):
