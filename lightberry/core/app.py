@@ -2,6 +2,8 @@ import asyncio
 from lightberry.core.communication.response import Response
 from lightberry.utils import common_utils
 from lightberry.config import AppConfig
+from lightberry.tasks.a_sync import ATaskBase
+from lightberry.tasks.threading import TaskBase
 
 from lightberry.typing import TYPE_CHECKING
 
@@ -10,8 +12,6 @@ if TYPE_CHECKING:
     from asyncio import AbstractEventLoop
     from lightberry.core.routing.router import Router
     from lightberry.core.routing.route import Route
-    from lightberry.tasks.a_sync import ATaskBase
-    from lightberry.tasks.threading import TaskBase
     from lightberry.core.communication.request import Request
 
 
