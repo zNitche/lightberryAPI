@@ -13,7 +13,8 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
   - host (Wi-Fi hotspot).
 - routers based routing (similar to `flask` blueprints).
 - url and query / search parameters parsing.
-- async / threading background tasks.
+- async background tasks.
+- threading background tasks (experimental).
 - generator based file responses.
 - separated json configs for app and server.
 - support for SSL/TLS (HTTPS).
@@ -179,11 +180,19 @@ openssl rsa -in key.pem -out key.der -outform DER
 lightberryAPI comes with build in kind of reverse proxy (here called ssl proxy) to
 redirect requests from `SERVER_PORT` to port no. 443 (HTTPS)
 
-### Requirements
+### Development
 
 packages in `requirements.txt` used for `MicroPython` development 
 using `PyCharm Micropython Plugin`.
 
+```
+pip3 install -r requirements.txt
+```
 
 Because repl in `Micropython plugin 1.4.0` doesn't seem to work with `Pycharm CE 2024.1.3`,
 added `rshell` to replace it.
+
+```
+> rshell
+> repl
+```
