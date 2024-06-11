@@ -21,8 +21,7 @@ class Response:
         for header, value in self.__headers.items():
             header_rows.append(f"{header}: {value}")
 
-        if HTTPConsts.CONTENT_TYPE not in self.__headers.keys():
-            header_rows.append(f"{HTTPConsts.CONTENT_TYPE}: {self.content_type}")
+        self.add_header(HTTPConsts.CONTENT_TYPE, self.content_type)
 
         header_string = "\r\n".join(header_rows)
 
