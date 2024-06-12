@@ -1,7 +1,7 @@
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from asyncio import StreamReader
+    from asyncio import StreamReader, StreamWriter
 
 
 def url_encode(value: str | int | None) -> str | None:
@@ -41,5 +41,5 @@ async def load_request_header_from_stream(stream: StreamReader) -> str:
     return request_header_string
 
 
-def write_to_stream(stream, data, encoding="utf-8"):
+def write_to_stream(stream: StreamWriter, data: str, encoding="utf-8"):
     stream.write(bytes(data, encoding))

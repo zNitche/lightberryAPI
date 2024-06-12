@@ -31,7 +31,7 @@ class Response:
     def headers(self):
         return self.__headers.copy()
 
-    def add_header(self, name: str, value):
+    def add_header(self, name: str, value: str | int):
         normalized_name = name.upper()
 
         if normalized_name not in self.__headers.keys():
