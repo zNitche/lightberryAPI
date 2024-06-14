@@ -4,6 +4,10 @@ if TYPE_CHECKING:
     from lightberry.core.app import App
 
 
+# Contextvars would be perfect...
+current_app: App | None = None
+
+
 class AppContext:
     def __init__(self, app: App):
         self.app: App = app
@@ -22,7 +26,3 @@ class AppContext:
             raise Exception("trying to access current app out of app context")
 
         return current_app
-
-
-# Contextvars would be perfect...
-current_app: App | None = None

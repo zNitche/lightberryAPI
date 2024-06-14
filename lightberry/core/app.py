@@ -1,5 +1,6 @@
 import asyncio
 from lightberry.core.communication.response import Response
+from lightberry.core.server import Server
 from lightberry.utils import common_utils
 from lightberry.config import AppConfig
 from lightberry.tasks.a_sync import ATaskBase
@@ -29,7 +30,15 @@ class App:
         self.__async_background_tasks: list[ATaskBase] = []
         self.__background_tasks: list[TaskBase] = []
 
-        self.__print_debug("App created...")
+        self.__print_debug("App has been created...")
+
+    def run(self):
+        server = Server(app=self)
+        server.start()
+
+    @property
+    def routers(self):
+        return self.__routers
 
     def add_background_task(self, task: TaskBase | ATaskBase):
         if task is None:
@@ -65,11 +74,7 @@ class App:
 
         self.__routers.append(router)
 
-    @property
-    def routers(self):
-        return self.__routers
-
-    async def requests_handler(self, request):
+    async def requests_handler(self, request: Request) -> Response:
         response = Response(500)
 
         try:

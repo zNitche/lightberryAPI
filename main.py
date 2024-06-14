@@ -28,13 +28,21 @@ def main():
     common_utils.print_debug(f"Free space: {files_utils.get_free_space()} kB",
                              debug_enabled=True)
 
+    # app = App()
+    #
+    # with AppContext(app):
+    #     setup_app(app)
+    #
+    #     server = Server(app=app)
+    #     server.start()
+
+    # Or
+
     app = App()
 
     with AppContext(app):
         setup_app(app)
-
-        server = Server(app=app)
-        server.start()
+        app.run()
 
 
 if __name__ == '__main__':
