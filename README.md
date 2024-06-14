@@ -1,6 +1,6 @@
 ## lightberryAPI 
 
-a lightweight, RESTful focused, `MicroPython` web framework & server for `RaspberryPi Pico W`,
+a lightweight `MicroPython` web framework & server for `RaspberryPi Pico W`,
 successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 
 ### Environment
@@ -129,34 +129,39 @@ import lightberry
 
 No errors, we are good to go
 
-##### Types hints
-In order to have proper code hints/autocompletion working we can do two things:
-1. Copy content of `lightberry` to `[YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry`
+#### Minimal app/server setup example
+more detailed examples can be found in `main.py` and `routes/`
+
+```
+app = App()
+
+with AppContext(app):
+    app.run()
+```
 
 or
 
-2. Generate `.pyi` files using `mypy`. This approach is described below,
-the only difference is, target directory which in this case should be
 ```
-out/lightberry -> [YOUR_VENV_DIR]/lib/python[VERSION]/site-packages/lightberry
+app = App()
+
+with AppContext(app):
+    server = Server(app=app)
+    server.start()
 ```
 
-##### Types hints (PyCharm + MicroPython Plugin)
-To enjoy code autocompletion we have to generate `.pyi` files
+#### Types hints
+To enjoy code autocompletion / hints `lightberryAPI` can be installed as python package
 for `lightberryAPI`
 
-1. Get `MyPy`
+add following line to your `requirements.txt`
 ```
-pip3 install mypy
-```
-
-2. Generate `.pyi` files
-```
-mkdir out
-stubgen lightberry
+lightberry @ git+https://github.com/zNitche/lightberryAPI.git
 ```
 
-3. Copy content of `out/lightberry` to `[PYCHARM_DIR]/intellij-micropython/typehints/micropython/lightberry`
+version can be specified
+```
+lightberry @ git+https://github.com/zNitche/lightberryAPI.git@v1.2.4
+```
 
 #### SSL / TLS
 
@@ -189,8 +194,7 @@ using `PyCharm Micropython Plugin`.
 pip3 install -r requirements.txt
 ```
 
-Because repl in `Micropython plugin 1.4.0` doesn't seem to work with `Pycharm CE 2024.1.3`,
-added `rshell` to replace it.
+enter REPL
 
 ```
 > rshell
