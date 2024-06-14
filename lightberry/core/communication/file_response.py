@@ -31,10 +31,14 @@ class FileResponse(Response):
         return files_utils.get_file_size(self.file_path)
 
     def get_content_type_by_extension(self) -> str:
-        file_extension = f".{self.file_path.split('.')[-1]}"
-        content_type_from_consts = HTTPConsts.FILES_TYPES_BY_EXTENSION.get(file_extension)
+        content_type = None
 
-        return content_type_from_consts if content_type_from_consts is not None else HTTPConsts.CONTENT_TYPE_HTML
+        for key, value in HTTPConsts.FILES_TYPES_BY_EXTENSION.items():
+            if self.file_path.endswith(key):
+                content_type = value
+                break
+
+        return content_type if content_type is not None else HTTPConsts.CONTENT_TYPE_TEXT
 
     def get_body(self) -> Iterator[str] | str:
         return self.payload_streamer() if self.is_payload_streamed and self.content_type else ""
