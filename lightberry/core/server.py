@@ -1,6 +1,6 @@
 import network
 import asyncio
-from lightberry.tasks.a_sync import ReconnectToNetworkTask, BlinkLedTask
+from lightberry.tasks.aio import ReconnectToNetworkTask, BlinkLedTask
 from lightberry.core.sockets_servers.http import AppServer
 from lightberry.core.sockets_servers.http import SslProxyServer
 from lightberry.utils import common_utils
@@ -10,7 +10,7 @@ from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from lightberry.core.app import App
-    from lightberry.tasks.a_sync import ATaskBase
+    from lightberry.tasks.aio import ATaskBase
     from lightberry.tasks.threading import TaskBase
     from lightberry.core.sockets_servers.http import HttpSocketServer
 

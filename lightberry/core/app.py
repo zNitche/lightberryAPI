@@ -3,7 +3,7 @@ from lightberry.core.communication.response import Response
 from lightberry.core.server import Server
 from lightberry.utils import common_utils
 from lightberry.config import AppConfig
-from lightberry.tasks.a_sync import ATaskBase
+from lightberry.tasks.aio import ATaskBase
 from lightberry.tasks.threading import TaskBase
 
 from lightberry.typing import TYPE_CHECKING
