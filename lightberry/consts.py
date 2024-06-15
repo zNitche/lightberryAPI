@@ -29,4 +29,4 @@ class HTTPConsts:
 
 class ServerConsts:
     LED_BLINK_PERIOD = 10
-    WIFI_RECONNECT_PERIOD = 120
+    WIFI_RECONNECT_PERIOD = 60

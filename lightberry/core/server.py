@@ -1,6 +1,6 @@
 import network
 import asyncio
-from lightberry.tasks.aio import ReconnectToNetworkTask, BlinkLedTask
+from lightberry.tasks.aio import ConnectToNetworkTask, BlinkLedTask
 from lightberry.core.sockets_servers.http import AppServer
 from lightberry.core.sockets_servers.http import SslProxyServer
 from lightberry.utils import common_utils
@@ -50,15 +50,33 @@ class Server:
         self.__async_background_tasks: list[ATaskBase] = []
         self.__background_tasks: list[TaskBase] = []
 
-        self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
-
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
 
         self.__wlan = network.WLAN(network.STA_IF)
         self.__wlan.active(True)
 
-    def __setup_wlan_as_host(self):
+    # for ConnectToNetworkTask
+    async def __connect_to_network(self):
+        if not self.__wlan.isconnected():
+            self.__print_debug(f"connecting to network '{self.wifi_ssid}'")
+            self.__wlan.connect(self.wifi_ssid, self.wifi_password)
+
+            await asyncio.sleep(3)
+
+            if self.__wlan.isconnected():
+                self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}")
+
+                self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.config.SERVER_PORT}"
+                self.__print_debug(f"server listening at: {self.__app.host}")
+            else:
+                self.__print_debug(f"couldn't connect to '{self.wifi_ssid}'")
+
+    def __run_as_client(self):
+        self.__setup_wlan_as_client()
+        self.__wlan.disconnect()
+
+    def __run_as_host(self):
         self.__print_debug(f"setting up server as host...")
 
         self.__wlan = network.WLAN(network.AP_IF)
@@ -66,31 +84,6 @@ class Server:
 
         self.__wlan.active(True)
         self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}")
-
-    def __connect_to_network(self):
-        tries = 0
-
-        if not self.__wlan.isconnected():
-            self.__wlan.disconnect()
-
-        while (tries < self.__wifi_connections_retries) and (not self.__wlan.isconnected()):
-            self.__print_debug(f"connecting to network '{self.wifi_ssid}': {tries + 1}...")
-
-            self.__wlan.connect(self.wifi_ssid, self.wifi_password)
-            tries += 1
-
-        if self.__wlan.isconnected():
-            self.__print_debug(f"connected to '{self.wifi_ssid}'")
-            self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}")
-        else:
-            self.__print_debug(f"Couldn't connect to '{self.wifi_ssid}'")
-
-    def __run_as_client(self):
-        self.__setup_wlan_as_client()
-        self.__connect_to_network()
-
-    def __run_as_host(self):
-        self.__setup_wlan_as_host()
 
     def __init_http_socket_servers(self):
         app_server = AppServer(self.__app, port=self.config.SERVER_PORT)
@@ -107,6 +100,9 @@ class Server:
         for server in self.__http_socket_servers:  # type: HttpSocketServer
             self.__mainloop.create_task(server.server_task)
             self.__print_debug(f"[SOCKET SERVER] Task for {server.__class__.__name__} has been created")
+
+    def setup_wlan(self):
+        self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
 
     def start(self):
         self.__print_debug("starting mainloop...")
@@ -137,10 +133,13 @@ class Server:
 
     def __register_async_background_tasks(self):
         if self.__mainloop:
-            if self.__reconnect_to_network and not self.__hotspot_mode:
-                self.__async_background_tasks.append(ReconnectToNetworkTask(self.__wlan.isconnected,
-                                                                            self.__connect_to_network,
-                                                                            self.debug_mode))
+            if not self.__hotspot_mode:
+                reconnect_task = ConnectToNetworkTask(self.__wlan.isconnected,
+                                                      self.__connect_to_network,
+                                                      self.__wifi_connections_retries,
+                                                      self.__reconnect_to_network,
+                                                      self.debug_mode)
+                self.__async_background_tasks.append(reconnect_task)
 
             if self.config.BLINK_LED:
                 self.__async_background_tasks.append(BlinkLedTask())

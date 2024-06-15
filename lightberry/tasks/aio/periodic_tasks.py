@@ -20,16 +20,32 @@ class BlinkLedTask(ATaskBase):
         self.led.off()
 
 
-class ReconnectToNetworkTask(ATaskBase):
-    def __init__(self, is_connected: Callable[[], bool], connection_handler: Callable, logging: bool):
+class ConnectToNetworkTask(ATaskBase):
+    def __init__(self,
+                 is_connected: Callable[[], bool],
+                 connection_handler: Callable,
+                 retires: int,
+                 reconnect: bool,
+                 logging: bool):
         super().__init__(periodic_interval=ServerConsts.WIFI_RECONNECT_PERIOD,
                          logging=logging)
+        self.is_periodic = self.is_periodic and reconnect
 
+        self.retires = retires
         self.is_connected: Callable[[], bool] = is_connected
         self.connection_handler: Callable = connection_handler
 
     async def task(self):
-        common_utils.print_debug(f"[{self.__class__.__name__}] reconnecting WiFi, connected: {self.is_connected()}")
+        self.__print_log(f"connecting to network, connected: {self.is_connected()}")
 
         if not self.is_connected():
-            self.connection_handler()
+            for try_id in range(self.retires):
+                self.__print_log(f"connecting... try: {try_id}")
+                await self.connection_handler()
+
+                if self.is_connected():
+                    break
+
+                await asyncio.sleep(3)
+
+            self.__print_log(f"connection status, connected: {self.is_connected()}")

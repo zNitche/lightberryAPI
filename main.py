@@ -34,6 +34,7 @@ def main():
     #     setup_app(app)
     #
     #     server = Server(app=app)
+    #     server.setup_wlan()
     #     server.start()
 
     # Or

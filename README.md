@@ -146,6 +146,7 @@ app = App()
 
 with AppContext(app):
     server = Server(app=app)
+    server.setup_wlan()
     server.start()
 ```
 
