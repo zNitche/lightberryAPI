@@ -31,7 +31,7 @@ class TaskBase:
 
     def __print_log(self, message: str | None = None, exception: Exception | None = None):
         if self.logging:
-            target_message = f"[THREADING] Error while executing task {self.__class__.__name__}"
+            target_message = f"[THREADING][{self.__class__.__name__}]"
             target_message = f"{target_message}: {message}" if message else target_message
 
             common_utils.print_debug(target_message, debug_enabled=True, exception=exception)

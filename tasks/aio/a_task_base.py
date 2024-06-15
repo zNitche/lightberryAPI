@@ -32,7 +32,7 @@ class ATaskBase:
 
     def __print_log(self, message: str | None = None, exception: Exception | None = None):
         if self.logging:
-            target_message = f"[ASYNC] Error while executing task {self.__class__.__name__}"
+            target_message = f"[ASYNC][{self.__class__.__name__}]"
             target_message = f"{target_message}: {message}" if message else target_message
 
             common_utils.print_debug(target_message, debug_enabled=True, exception=exception)
