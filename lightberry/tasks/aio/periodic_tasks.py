@@ -36,7 +36,7 @@ class ConnectToNetworkTask(ATaskBase):
         self.connection_handler: Callable = connection_handler
 
     async def task(self):
-        self.__print_log(f"connecting to network, connected: {self.is_connected()}")
+        self.__print_log(f"network check, connected: {self.is_connected()}")
 
         if not self.is_connected():
             for try_id in range(self.retires):
