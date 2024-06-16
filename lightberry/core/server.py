@@ -101,10 +101,11 @@ class Server:
             self.__mainloop.create_task(server.server_task)
             self.__print_debug(f"[SOCKET SERVER] Task for {server.__class__.__name__} has been created")
 
-    def setup_wlan(self):
+    def __setup_wlan(self):
         self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
 
     def start(self):
+        self.__setup_wlan()
         self.__print_debug("starting mainloop...")
 
         if self.__wlan is not None:
