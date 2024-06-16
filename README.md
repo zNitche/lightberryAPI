@@ -61,11 +61,7 @@ wget -O lightberry_config.json https://raw.githubusercontent.com/zNitche/lightbe
 Note that `App` section can be extended, all values passed there
 will be available in `App.config`.
 
-3. Example project structure and app setup can be found in:
-- `main.py`
-- `routes/`
-
-4. Flash microcontroller and you are good to go.
+3. Flash microcontroller and you are good to go.
 
 #### As a MicroPython frozen module
 
@@ -130,25 +126,7 @@ import lightberry
 No errors, we are good to go
 
 #### Minimal app/server setup example
-more detailed examples can be found in `main.py` and `routes/`
-
-```
-app = App()
-
-with AppContext(app):
-    app.run()
-```
-
-or
-
-```
-app = App()
-
-with AppContext(app):
-    server = Server(app=app)
-    server.setup_wlan()
-    server.start()
-```
+detailed examples can be found in `main.py` and `routes/`
 
 #### Types hints
 To enjoy code autocompletion / hints `lightberryAPI` can be installed as python package
