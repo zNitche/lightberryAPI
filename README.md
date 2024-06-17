@@ -165,17 +165,8 @@ lightberryAPI comes with build in kind of reverse proxy (here called ssl proxy) 
 redirect requests from `SERVER_PORT` to port no. 443 (HTTPS)
 
 ### Development
-
-packages in `requirements.txt` used for `MicroPython` development 
-using `PyCharm Micropython Plugin`.
+packages in `requirements.txt` are used for development / build
 
 ```
 pip3 install -r requirements.txt
-```
-
-enter REPL
-
-```
-> rshell
-> repl
 ```
