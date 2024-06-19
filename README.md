@@ -170,3 +170,25 @@ packages in `requirements.txt` are used for development / build
 ```
 pip3 install -r requirements.txt
 ```
+
+#### Remote Shell
+for flashing pico you can use `rshell`
+```
+pip3 install rshell==0.0.32
+```
+
+enter REPL
+```
+rshell 
+repl
+```
+
+flash
+```
+rshell -f commands/flash
+```
+
+clear all files
+```
+rshell -f commands/wipe
+```

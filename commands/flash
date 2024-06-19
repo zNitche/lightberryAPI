@@ -1,0 +1,4 @@
+cp -r lightberry /pyboard
+cp -r routes /pyboard
+cp -r *.py /pyboard
+cp -r *.json /pyboard
