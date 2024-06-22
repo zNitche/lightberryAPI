@@ -173,9 +173,6 @@ pip3 install -r requirements.txt
 
 #### Remote Shell
 for flashing pico you can use `rshell`
-```
-pip3 install rshell==0.0.32
-```
 
 enter REPL
 ```
