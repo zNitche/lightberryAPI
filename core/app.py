@@ -34,7 +34,6 @@ class App:
 
     def run(self):
         server = Server(app=self)
-        server.setup_wlan()
         server.start()
 
     @property
