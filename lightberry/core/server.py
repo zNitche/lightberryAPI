@@ -56,6 +56,9 @@ class Server:
         self.__wlan = network.WLAN(network.STA_IF)
         self.__wlan.active(True)
 
+        mac_address = common_utils.get_readable_mac_address(self.__wlan.config("mac"))
+        self.__print_debug(f"MAC Address: {mac_address}", enabled=True)
+
     # for ConnectToNetworkTask
     async def __connect_to_network(self):
         if not self.__wlan.isconnected():
@@ -65,7 +68,8 @@ class Server:
             await asyncio.sleep(3)
 
             if self.__wlan.isconnected():
-                self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}")
+                self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}",
+                                   enabled=True)
 
                 self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.config.SERVER_PORT}"
                 self.__print_debug(f"server listening at: {self.__app.host}")
@@ -83,7 +87,11 @@ class Server:
         self.__wlan.config(essid=self.hotspot_name, password=self.hotspot_password)
 
         self.__wlan.active(True)
-        self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}")
+
+        mac_address = common_utils.get_readable_mac_address(self.__wlan.config("mac"))
+
+        self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}", enabled=True)
+        self.__print_debug(f"MAC Address: {mac_address}", enabled=True)
 
     def __init_http_socket_servers(self):
         app_server = AppServer(self.__app, port=self.config.SERVER_PORT)
@@ -149,5 +157,7 @@ class Server:
                 self.__mainloop.create_task(task.handler())
                 self.__print_debug(f"[TASKS] registering async task: {task.__class__.__name__}")
 
-    def __print_debug(self, message: str, exception: Exception | None = None):
-        common_utils.print_debug(message, "SERVER", debug_enabled=self.debug_mode, exception=exception)
+    def __print_debug(self, message: str, exception: Exception | None = None, enabled: bool | None = None):
+        common_utils.print_debug(message, "SERVER",
+                                 debug_enabled=enabled if enabled is not None else self.debug_mode,
+                                 exception=exception)

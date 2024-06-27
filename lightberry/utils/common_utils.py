@@ -13,3 +13,7 @@ def print_debug(message: str, origin: str = "CORE", debug_enabled: bool = False,
 
 def get_onboard_led() -> machine.Pin:
     return machine.Pin("LED", machine.Pin.OUT)
+
+
+def get_readable_mac_address(encoded_mac: bytes) -> str:
+    return ':'.join([f"{char:02X}" for char in encoded_mac])
