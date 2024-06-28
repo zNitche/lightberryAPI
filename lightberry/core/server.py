@@ -42,6 +42,8 @@ class Server:
         self.__wlan: network.WLAN | None = None
         self.__reconnect_to_network = reconnect_to_network
 
+        self.__mac_address: str | None = None
+
         self.__mainloop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
         self.__app = app
 
@@ -56,9 +58,6 @@ class Server:
         self.__wlan = network.WLAN(network.STA_IF)
         self.__wlan.active(True)
 
-        mac_address = common_utils.get_readable_mac_address(self.__wlan.config("mac"))
-        self.__print_debug(f"MAC Address: {mac_address}", enabled=True)
-
     # for ConnectToNetworkTask
     async def __connect_to_network(self):
         if not self.__wlan.isconnected():
@@ -68,8 +67,7 @@ class Server:
             await asyncio.sleep(3)
 
             if self.__wlan.isconnected():
-                self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}",
-                                   enabled=True)
+                self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}")
 
                 self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.config.SERVER_PORT}"
                 self.__print_debug(f"server listening at: {self.__app.host}")
@@ -85,13 +83,7 @@ class Server:
 
         self.__wlan = network.WLAN(network.AP_IF)
         self.__wlan.config(essid=self.hotspot_name, password=self.hotspot_password)
-
         self.__wlan.active(True)
-
-        mac_address = common_utils.get_readable_mac_address(self.__wlan.config("mac"))
-
-        self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}", enabled=True)
-        self.__print_debug(f"MAC Address: {mac_address}", enabled=True)
 
     def __init_http_socket_servers(self):
         app_server = AppServer(self.__app, port=self.config.SERVER_PORT)
@@ -111,6 +103,12 @@ class Server:
 
     def __setup_wlan(self):
         self.__run_as_host() if self.__hotspot_mode else self.__run_as_client()
+
+        if self.__wlan is not None:
+            self.__mac_address = common_utils.get_readable_mac_address(self.__wlan.config("mac"))
+
+            self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}", enabled=True)
+            self.__print_debug(f"MAC Address: {self.__mac_address}", enabled=True)
 
     def start(self):
         self.__setup_wlan()
@@ -136,6 +134,7 @@ class Server:
 
     def __setup_app(self):
         self.__app.host = f"{self.__wlan.ifconfig()[0]}:{self.config.SERVER_PORT}"
+        self.__app.mac_address = self.__mac_address
 
         self.__app.register_async_background_tasks(self.__mainloop)
         self.__app.register_background_tasks()
