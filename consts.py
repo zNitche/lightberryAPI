@@ -1,6 +1,7 @@
 class HTTPConsts:
     CONTENT_LENGTH = "CONTENT-LENGTH"
     CONTENT_TYPE = "CONTENT-TYPE"
+    CONTENT_ENCODING = "CONTENT-ENCODING"
 
     CONTENT_TYPE_JSON = "application/json"
     CONTENT_TYPE_CSS = "text/css"
@@ -25,6 +26,8 @@ class HTTPConsts:
         ".png": CONTENT_TYPE_PNG,
         ".json": CONTENT_TYPE_JSON,
     }
+
+    GZIP_COMPRESSED_CONTENT_EXTENSIONS = (".js.gz", ".css.gz")
 
 
 class ServerConsts:

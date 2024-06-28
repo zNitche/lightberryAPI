@@ -17,3 +17,8 @@ def get_onboard_led() -> machine.Pin:
 
 def get_readable_mac_address(encoded_mac: bytes) -> str:
     return ':'.join([f"{char:02X}" for char in encoded_mac])
+
+
+def endswith(value: str, values: list[str]) -> bool:
+    matches = list(filter(value.endswith, values))
+    return len(matches) > 0

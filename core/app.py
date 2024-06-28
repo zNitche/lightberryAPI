@@ -23,6 +23,7 @@ class App:
         self.config: Type[AppConfig] | None = AppConfig
 
         self.host: str | None = None
+        self.mac_address: str | None = None
 
         self.__routers: list[Router] = []
         self.__after_request_handler: Optional[Callable] = None
