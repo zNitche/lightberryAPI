@@ -32,10 +32,11 @@ class Response:
         return self.__headers.copy()
 
     def add_header(self, name: str, value: str | int):
-        normalized_name = name.upper()
+        if name is not None:
+            normalized_name = name.upper()
 
-        if normalized_name not in self.__headers.keys():
-            self.__headers[normalized_name] = value
+            if normalized_name not in self.__headers.keys():
+                self.__headers[normalized_name] = value
 
     def get_body(self) -> str:
         return self.payload if self.payload else ""
