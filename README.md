@@ -33,13 +33,45 @@ requests handling.
 - type hints for all modules.
 - support for SSL/TLS
 
-### How to use it
+### Development
+packages in `requirements.txt` are used for development / build
+```
+pip3 install -r requirements.txt
+```
 
-#### Build python package 
-(doesn't seem to work with Micropython on RP2040)
+#### Code autocompletion
+To enjoy code autocompletion and type hints `lightberryAPI` can be installed as python package.
+
+Add following line to your `requirements.txt`
 ```
-python3 -m build --sdist
+lightberry @ git+https://github.com/zNitche/lightberryAPI.git
 ```
+
+version can be specified
+```
+lightberry @ git+https://github.com/zNitche/lightberryAPI.git@v1.2.4
+```
+
+#### Remote Shell
+for flashing pico you can use `rshell`
+
+enter REPL
+```
+rshell 
+repl
+```
+
+flash
+```
+rshell -f commands/flash
+```
+
+clear all files
+```
+rshell -f commands/wipe
+```
+
+### How to use it
 
 #### As git submodule
 
@@ -125,23 +157,13 @@ import lightberry
 
 No errors, we are good to go
 
-#### Minimal app/server setup example
-detailed examples can be found in `main.py` and `routes/`
+### Examples
+- `main.py` - app and server setup.
+- `routes/` - routes setup + workflow.
+- `tasks.py` - background tasks.
+- `lightberry_config.template.json` - config template.
 
-#### Types hints
-To enjoy code autocompletion / hints `lightberryAPI` can be installed as python package
-for `lightberryAPI`
-
-add following line to your `requirements.txt`
-```
-lightberry @ git+https://github.com/zNitche/lightberryAPI.git
-```
-
-version can be specified
-```
-lightberry @ git+https://github.com/zNitche/lightberryAPI.git@v1.2.4
-```
-
+### Extras
 #### SSL / TLS
 
 1. Generate cert + key
@@ -163,29 +185,3 @@ openssl rsa -in key.pem -out key.der -outform DER
 
 lightberryAPI comes with build in kind of reverse proxy (here called ssl proxy) to
 redirect requests from `SERVER_PORT` to port no. 443 (HTTPS)
-
-### Development
-packages in `requirements.txt` are used for development / build
-
-```
-pip3 install -r requirements.txt
-```
-
-#### Remote Shell
-for flashing pico you can use `rshell`
-
-enter REPL
-```
-rshell 
-repl
-```
-
-flash
-```
-rshell -f commands/flash
-```
-
-clear all files
-```
-rshell -f commands/wipe
-```
