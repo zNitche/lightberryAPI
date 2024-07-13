@@ -6,7 +6,7 @@ import asyncio
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Callable
+    from typing import Callable, Awaitable
 
 
 class BlinkLedTask(ATaskBase):
@@ -33,7 +33,7 @@ class ConnectToNetworkTask(ATaskBase):
 
         self.retires = retires
         self.is_connected: Callable[[], bool] = is_connected
-        self.connection_handler: Callable = connection_handler
+        self.connection_handler: Callable[[], Awaitable[None]] = connection_handler
 
     async def task(self):
         self.__print_log(f"network check, connected: {self.is_connected()}")

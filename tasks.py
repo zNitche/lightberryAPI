@@ -1,5 +1,5 @@
-from lightberry.tasks.aio.a_task_base import ATaskBase
-from lightberry.tasks.threading.task_base import TaskBase
+from lightberry.tasks.aio import ATaskBase
+from lightberry.tasks.threading import TaskBase
 
 
 class ExampleAsyncTask(ATaskBase):
