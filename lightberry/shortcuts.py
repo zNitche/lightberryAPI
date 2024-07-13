@@ -43,7 +43,7 @@ def url_for(endpoint_name: str,
                 break
 
     if endpoint_url and external:
-        endpoint_url = f"{app.host}{endpoint_url}"
+        endpoint_url = f"{app.get_host()}{endpoint_url}"
 
     return endpoint_url
 

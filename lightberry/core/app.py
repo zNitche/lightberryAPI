@@ -9,7 +9,7 @@ from lightberry.tasks.threading import TaskBase
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Type, Callable, Optional
+    from typing import Type, Callable, Awaitable
     from asyncio import AbstractEventLoop
     from lightberry.core.routing.router import Router
     from lightberry.core.routing.route import Route
@@ -20,13 +20,13 @@ class App:
     def __init__(self, debug_mode: bool = AppConfig.DEBUG):
 
         self.debug_mode: bool = debug_mode
-        self.config: Type[AppConfig] | None = AppConfig
+        self.config: Type[AppConfig] = AppConfig
 
-        self.host: str | None = None
-        self.mac_address: str | None = None
+        self.get_host: Callable[[], str | None] | None = None
+        self.get_mac_address: Callable[[], str | None] | None = None
 
         self.__routers: list[Router] = []
-        self.__after_request_handler: Optional[Callable] = None
+        self.__after_request_handler: Callable[[Response], Awaitable[Response]] | None = None
 
         self.__async_background_tasks: list[ATaskBase] = []
         self.__background_tasks: list[TaskBase] = []
@@ -64,7 +64,7 @@ class App:
             task.start()
             self.__print_debug(f"[TASKS] registering threading task: {task.__class__.__name__}")
 
-    def add_router(self, router):
+    def add_router(self, router: Router):
         if router is None:
             raise Exception("Router can't be none")
 
