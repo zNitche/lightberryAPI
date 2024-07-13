@@ -1,5 +1,6 @@
 import network
 import asyncio
+import time
 from lightberry.tasks import ConnectToNetworkTask, BlinkLedTask
 from lightberry.core.sockets_servers.http import AppServer
 from lightberry.core.sockets_servers.http import SslProxyServer
@@ -85,6 +86,10 @@ class Server:
         if not self.__wlan.isconnected():
             self.__print_debug(f"connecting to network '{self.wifi_ssid}'")
             self.__wlan.connect(self.wifi_ssid, self.wifi_password)
+
+            timeout_time = time.time() + self.__wifi_connection_timeout
+            while not self.__wlan.isconnected() or time.time() > timeout_time:
+                await asyncio.sleep(0.5)
 
             if self.__wlan.isconnected():
                 self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}")
