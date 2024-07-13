@@ -19,8 +19,6 @@ class SslProxyServer(HttpSocketServer):
         self.config = Config
 
     async def __requests_handler(self, client_r: StreamReader, client_w: StreamWriter):
-        self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
-
         try:
             request = await asyncio.wait_for(self.__load_request(client_r), self.config.TIMEOUT)
 
@@ -37,5 +35,3 @@ class SslProxyServer(HttpSocketServer):
         finally:
             client_w.close()
             await client_w.wait_closed()
-
-            self.__print_debug(f"connection closed")

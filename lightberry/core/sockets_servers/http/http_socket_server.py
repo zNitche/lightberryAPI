@@ -1,12 +1,13 @@
+import asyncio
+import time
 from lightberry.utils import common_utils
 from lightberry.core.communication.request import Request
 from lightberry.utils import requests_utils
-import asyncio
 
 from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Type, Coroutine
+    from typing import Type, Coroutine, Callable
     from lightberry.config.base_config import BaseConfig
     from asyncio import StreamReader, StreamWriter
 
@@ -45,12 +46,22 @@ class HttpSocketServer:
             return None
 
     async def __requests_handler(self, client_r: StreamReader, client_w: StreamWriter):
-        raise NotImplementedError("Not not implemented")
+        raise NotImplementedError("Not implemented")
+
+    async def __debug_requests_handler_wrapper(self, client_r: StreamReader, client_w: StreamWriter):
+        self.__print_debug(f"connection from: {client_w.get_extra_info('peername')}")
+        start_time = time.ticks_ms() if self.debug_mode else None
+
+        await self.__requests_handler(client_r, client_w)
+
+        self.__print_debug(f"request took: {time.ticks_ms() - start_time}ms")
+
+    def __get_requests_handler_for_mode(self) -> Callable[[StreamReader, StreamWriter], Coroutine]:
+        return self.__debug_requests_handler_wrapper if self.debug_mode else self.__requests_handler
 
     def setup(self):
-        self.server_task = asyncio.start_server(self.__requests_handler,
-                                                self.host,
-                                                self.port)
+        handler = self.__get_requests_handler_for_mode()
+        self.server_task = asyncio.start_server(handler, self.host, self.port)
 
     def __print_debug(self, message: str, exception: Exception | None = None):
         common_utils.print_debug(message, f"SERVER - {self.__class__.__name__}",

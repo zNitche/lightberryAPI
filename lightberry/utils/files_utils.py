@@ -2,6 +2,9 @@ import os
 
 
 def file_exists(path: str) -> bool:
+    if not path:
+        return False
+
     try:
         os.stat(path)
 
