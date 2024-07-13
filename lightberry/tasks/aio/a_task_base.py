@@ -8,7 +8,8 @@ if TYPE_CHECKING:
 
 
 class ATaskBase:
-    def __init__(self, periodic_interval: int = 0, logging: bool = False):
+    def __init__(self, init_delay: int = 0, periodic_interval: int = 0, logging: bool = False):
+        self.init_delay: int = init_delay
         self.is_periodic: bool = periodic_interval > 0
         self.interval: int = periodic_interval
 
@@ -18,6 +19,8 @@ class ATaskBase:
         raise NotImplementedError("task not implemented")
 
     async def handler(self):
+        await asyncio.sleep(self.init_delay)
+
         while True:
             try:
                 await self.task()

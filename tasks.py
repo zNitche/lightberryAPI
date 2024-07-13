@@ -4,7 +4,7 @@ from lightberry.tasks.threading import TaskBase
 
 class ExampleAsyncTask(ATaskBase):
     def __init__(self):
-        super().__init__(periodic_interval=10)
+        super().__init__(periodic_interval=10, init_delay=5)
 
     async def task(self):
         print("[A] Output from example background task...")
