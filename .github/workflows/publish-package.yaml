@@ -1,0 +1,24 @@
+name: Publish Package
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  publish-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Create package
+        run:  zip -r lightberry-${{ github.ref_name }}.zip lightberry/
+
+      - name: Upload do Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload ${{ github.ref_name }} lightberry-${{ github.ref_name }}.zip

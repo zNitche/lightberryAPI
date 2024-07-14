@@ -73,25 +73,18 @@ rshell -f commands/wipe
 
 ### How to use it
 
-#### As git submodule
+#### Get package from Github release
 
-In order to use `lightberryAPI` in your project without keeping whole 
-codebase in repo, framework should be added as `git submodule`.
-
-In your project root directory:
-
-1. Add `lightberryAPI` as git submodule.
+1. Get `.zip` package (replace `<VERSION>` with release number, for instance `v1.3.0`)
 ```
-git submodule add --name lightberry -b production https://github.com/zNitche/lightberryAPI ./lightberry
+wget -O lightberry.zip https://github.com/zNitche/lightberryAPI/releases/download/<VERSION>/lightberry-<VERSION>.zip
 ```
 
-2. Create `lightberry_config.json`.
+2. Unpack archive and add its content to your project (don't forget to include it in `.gitignore`)
 ```
-wget -O lightberry_config.json https://raw.githubusercontent.com/zNitche/lightberryAPI/main/lightberry_config.template.json
+unzip lightberry.zip
+cp -r lightberry <PROJECT_PATH>/lightberry
 ```
-
-Note that `App` section can be extended, all values passed there
-will be available in `App.config`.
 
 3. Flash microcontroller and you are good to go.
 
@@ -109,15 +102,15 @@ sudo apt install cmake build-essential
 sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi
 ```
 
-2. Get lightberryAPI
+2. Get lightberryAPI (replace `<VERSION>` with release number, for instance `v1.3.0`)
 ```
-git clone https://github.com/zNitche/lightberryAPI.git --branch=production
+wget -O lightberry.zip https://github.com/zNitche/lightberryAPI/releases/download/<VERSION>/lightberry-<VERSION>.zip
 ```
 
-3. Prepare module
+3. Prepare package
 ```
-mv lightberryAPI lightberry
-rm -rf lightberry/.git
+unzip lightberry.zip
+rm lightberry.zip
 ```
 
 4. Get MicroPython
@@ -138,7 +131,7 @@ make -C mpy-cross
 
 7. Move `lightberry` directory to target destination
 ```
-cp -r ../lightberry ports/rp2/modules/
+cp -r ../lightberry ports/rp2/modules/lightberry
 ```
 
 8. Build firmware
@@ -150,7 +143,7 @@ Flash Pico (using BOOTSEL button) with newly created `firmware.uf2`
 ```
 micropython/ports/rp2/build-RPI_PICO_W/firmware.uf2
 ```
-Now connect via REPL, to verify if module has been included correctly type:
+Now connect via REPL, to verify if module has been included correctly, type:
 ```
 import lightberry
 ```
@@ -162,6 +155,9 @@ No errors, we are good to go
 - `routes/` - routes setup + workflow.
 - `tasks.py` - background tasks.
 - `lightberry_config.template.json` - config template.
+
+Note that `App` section can be extended, all values passed there
+will be available in `current_app.config`.
 
 ### Extras
 #### SSL / TLS
