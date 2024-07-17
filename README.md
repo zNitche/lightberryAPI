@@ -7,6 +7,10 @@ successor of [strawberryAPI](https://github.com/zNitche/strawberryAPI).
 - Raspberry Pi Pico W 2022 version
 - Micropython for Rpi Pico W - v1.22.2 stable
 
+##### Note
+I have recently tested if `ESP32` can run `lightberryAPI`, and as I expected, it worked.
+One thing is to disable `BLINK_LED` in config. 
+
 ### Features
 - async web server, supporting 2 modes:
   - client.
@@ -57,18 +61,18 @@ for flashing pico you can use `rshell`
 
 enter REPL
 ```
-rshell 
+rshell -p /dev/ttyUSBX
 repl
 ```
 
 flash
 ```
-rshell -f commands/flash
+rshell -p /dev/ttyUSBX -f commands/flash
 ```
 
 clear all files
 ```
-rshell -f commands/wipe
+rshell -p /dev/ttyUSBX -f commands/wipe
 ```
 
 ### How to use it
