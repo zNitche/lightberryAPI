@@ -64,7 +64,7 @@ class Server:
 
             self.__wlan_enabled = True
 
-    def __toggle_wlan(self, enabled: bool):
+    def toggle_wlan(self, enabled: bool):
         self.__wlan.active(enabled)
 
         if not enabled:
@@ -155,10 +155,10 @@ class Server:
                 self.__print_debug(f"[TASKS] registering async task: {task.__class__.__name__}")
 
     def __setup_app(self):
-        self.__app.get_mac_address = self.get_mac
-        self.__app.get_host = self.get_host
-        self.__app.toggle_wlan = self.__toggle_wlan
-        self.__app.is_wlan_active = self.is_wlan_active
+        self.__app.server_handlers_manager.setup_handler("get_mac_address", self.get_mac)
+        self.__app.server_handlers_manager.setup_handler("get_host", self.get_host)
+        self.__app.server_handlers_manager.setup_handler("toggle_wlan", self.toggle_wlan)
+        self.__app.server_handlers_manager.setup_handler("is_wlan_active", self.is_wlan_active)
 
         self.__app.register_async_background_tasks(self.__mainloop)
         self.__app.register_background_tasks()
@@ -173,7 +173,7 @@ class Server:
             self.__register_async_background_tasks()
             self.__setup_app()
 
-            self.__print_debug(f"server listening at: {self.__app.get_host()}")
+            self.__print_debug(f"server listening at: {self.__app.server_handlers_manager.get_host()}")
             self.__print_debug("mainloop running...")
 
             self.__mainloop.run_forever()
@@ -185,7 +185,7 @@ class Server:
         self.__mainloop.stop()
         self.__mainloop.close()
 
-        self.__toggle_wlan(enabled=False)
+        self.toggle_wlan(enabled=False)
 
     def __print_debug(self, message: str, exception: Exception | None = None, enabled: bool | None = None):
         common_utils.print_debug(message, "SERVER",
