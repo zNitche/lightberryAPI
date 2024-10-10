@@ -43,6 +43,8 @@ class Server:
         self.__hotspot_mode = hotspot_mode
 
         self.__wlan: network.WLAN | None = None
+        self.__wlan_enabled: bool = False
+
         self.__reconnect_to_network = reconnect_to_network
 
         self.__mainloop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
@@ -60,9 +62,15 @@ class Server:
             self.__print_debug(f"WLAN config: {self.__wlan.ifconfig()}", enabled=True)
             self.__print_debug(f"MAC Address: {self.get_mac()}", enabled=True)
 
-    def __disable_wlan(self):
-        self.__wlan.disconnect()
-        self.__wlan.active(False)
+            self.__wlan_enabled = True
+
+    def __toggle_wlan(self, enabled: bool):
+        self.__wlan.active(enabled)
+
+        if not enabled:
+            self.__wlan.disconnect()
+
+        self.__wlan_enabled = enabled
 
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
@@ -83,7 +91,7 @@ class Server:
 
     # for ConnectToNetworkTask
     async def __connect_to_network(self):
-        if not self.__wlan.isconnected():
+        if self.__wlan and not self.__wlan.isconnected() and self.__wlan_enabled:
             self.__print_debug(f"connecting to network '{self.wifi_ssid}'")
             self.__wlan.connect(self.wifi_ssid, self.wifi_password)
 
@@ -95,6 +103,9 @@ class Server:
                 self.__print_debug(f"connected to '{self.wifi_ssid}', WLAN config: {self.__wlan.ifconfig()}")
             else:
                 self.__print_debug(f"couldn't connect to '{self.wifi_ssid}'")
+
+    def is_wlan_active(self) -> bool:
+        return self.__wlan and self.__wlan_enabled
 
     def get_mac(self) -> str | None:
         if self.__wlan is None:
@@ -127,11 +138,13 @@ class Server:
     def __register_async_background_tasks(self):
         if self.__mainloop:
             if not self.__hotspot_mode:
-                reconnect_task = ConnectToNetworkTask(self.__wlan.isconnected,
-                                                      self.__connect_to_network,
-                                                      self.__wifi_connections_retries,
-                                                      self.__reconnect_to_network,
-                                                      self.debug_mode)
+                reconnect_task = ConnectToNetworkTask(is_wlan_enabled=self.is_wlan_active,
+                                                      is_connected=self.__wlan.isconnected,
+                                                      connection_handler=self.__connect_to_network,
+                                                      retires=self.__wifi_connections_retries,
+                                                      reconnect=self.__reconnect_to_network,
+                                                      logging=self.debug_mode)
+
                 self.__async_background_tasks.append(reconnect_task)
 
             if self.config.BLINK_LED:
@@ -144,6 +157,8 @@ class Server:
     def __setup_app(self):
         self.__app.get_mac_address = self.get_mac
         self.__app.get_host = self.get_host
+        self.__app.toggle_wlan = self.__toggle_wlan
+        self.__app.is_wlan_active = self.is_wlan_active
 
         self.__app.register_async_background_tasks(self.__mainloop)
         self.__app.register_background_tasks()
@@ -170,7 +185,7 @@ class Server:
         self.__mainloop.stop()
         self.__mainloop.close()
 
-        self.__disable_wlan()
+        self.__toggle_wlan(enabled=False)
 
     def __print_debug(self, message: str, exception: Exception | None = None, enabled: bool | None = None):
         common_utils.print_debug(message, "SERVER",
