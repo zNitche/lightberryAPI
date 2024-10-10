@@ -5,6 +5,7 @@ from lightberry.utils import common_utils
 from lightberry.config import AppConfig
 from lightberry.tasks.aio import ATaskBase
 from lightberry.tasks.threading import TaskBase
+from lightberry.modules import ServerHandlersManager
 
 from lightberry.typing import TYPE_CHECKING
 
@@ -22,10 +23,7 @@ class App:
         self.debug_mode: bool = debug_mode
         self.config: Type[AppConfig] = AppConfig
 
-        self.get_host: Callable[[], str | None] | None = None
-        self.get_mac_address: Callable[[], str | None] | None = None
-        self.toggle_wlan: Callable[[bool], None] | None = None
-        self.is_wlan_active: Callable[[], bool] | None = None
+        self.server_handlers_manager = ServerHandlersManager()
 
         self.__routers: list[Router] = []
         self.__after_request_handler: Callable[[Response], Awaitable[Response]] | None = None
