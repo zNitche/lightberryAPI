@@ -24,6 +24,8 @@ class App:
 
         self.get_host: Callable[[], str | None] | None = None
         self.get_mac_address: Callable[[], str | None] | None = None
+        self.toggle_wlan: Callable[[bool], None] | None = None
+        self.is_wlan_active: Callable[[], bool] | None = None
 
         self.__routers: list[Router] = []
         self.__after_request_handler: Callable[[Response], Awaitable[Response]] | None = None

@@ -22,6 +22,7 @@ class BlinkLedTask(ATaskBase):
 
 class ConnectToNetworkTask(ATaskBase):
     def __init__(self,
+                 is_wlan_enabled: Callable[[], bool],
                  is_connected: Callable[[], bool],
                  connection_handler: Callable,
                  retires: int,
@@ -31,6 +32,7 @@ class ConnectToNetworkTask(ATaskBase):
                          logging=logging)
         self.is_periodic = self.is_periodic and reconnect
 
+        self.is_wlan_enabled = is_wlan_enabled
         self.retires = retires
         self.is_connected: Callable[[], bool] = is_connected
         self.connection_handler: Callable[[], Awaitable[None]] = connection_handler
@@ -38,7 +40,7 @@ class ConnectToNetworkTask(ATaskBase):
     async def task(self):
         self.__print_log(f"network check, connected: {self.is_connected()}")
 
-        if not self.is_connected():
+        if self.is_wlan_enabled() and not self.is_connected():
             for try_id in range(self.retires):
                 self.__print_log(f"connecting... try: {try_id}")
                 await self.connection_handler()

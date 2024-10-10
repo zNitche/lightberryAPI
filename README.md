@@ -23,6 +23,8 @@ One thing is to disable `BLINK_LED` in config.
 - separated json configs for app and server.
 - support for SSL/TLS (HTTPS).
 - debug logging.
+- turning WLAN on/off for power saving.
+- auto Wi-Fi reconnect.
 
 ### Project Goals
 - build universal tool I can use in my future projects.
