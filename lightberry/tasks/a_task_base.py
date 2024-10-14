@@ -26,14 +26,14 @@ class ATaskBase:
                 await self.task()
 
             except Exception as e:
-                self.__print_log(exception=e)
+                self._print_log(exception=e)
 
             if not self.is_periodic:
                 break
 
             await asyncio.sleep(self.interval)
 
-    def __print_log(self, message: str | None = None, exception: Exception | None = None):
+    def _print_log(self, message: str | None = None, exception: Exception | None = None):
         if self.logging:
             target_message = f"[ASYNC][{self.__class__.__name__}]"
             target_message = f"{target_message}: {message}" if message else target_message

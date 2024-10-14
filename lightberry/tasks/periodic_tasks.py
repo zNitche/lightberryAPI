@@ -1,6 +1,6 @@
 from lightberry.utils import common_utils
 from lightberry.consts import ServerConsts
-from lightberry.tasks.aio import ATaskBase
+from lightberry.tasks.a_task_base import ATaskBase
 import asyncio
 
 from lightberry.typing import TYPE_CHECKING
@@ -38,11 +38,11 @@ class ConnectToNetworkTask(ATaskBase):
         self.connection_handler: Callable[[], Awaitable[None]] = connection_handler
 
     async def task(self):
-        self.__print_log(f"network check, connected: {self.is_connected()}")
+        self._print_log(f"network check, connected: {self.is_connected()}")
 
         if self.is_wlan_enabled() and not self.is_connected():
             for try_id in range(self.retires):
-                self.__print_log(f"connecting... try: {try_id}")
+                self._print_log(f"connecting... try: {try_id}")
                 await self.connection_handler()
 
                 if self.is_connected():
@@ -50,4 +50,4 @@ class ConnectToNetworkTask(ATaskBase):
 
                 await asyncio.sleep(3)
 
-            self.__print_log(f"connection status, connected: {self.is_connected()}")
+            self._print_log(f"connection status, connected: {self.is_connected()}")
