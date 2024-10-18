@@ -11,8 +11,8 @@ from lightberry.typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from lightberry.core.app import App
-    from lightberry.tasks.aio import ATaskBase
-    from lightberry.tasks.threading import TaskBase
+    from lightberry.tasks import ATaskBase
+    from lightberry.tasks import TaskBase
     from lightberry.core.sockets_servers.http import HttpSocketServer
 
 
