@@ -154,12 +154,13 @@ class Server:
                 self.__mainloop.create_task(task.handler())
                 self.__print_debug(f"[TASKS] registering async task: {task.__class__.__name__}")
 
-    def __setup_app(self):
+    def __setup_app_server_handlers(self):
         self.__app.server_handlers_manager.setup_handler("get_mac_address", self.get_mac)
         self.__app.server_handlers_manager.setup_handler("get_host", self.get_host)
         self.__app.server_handlers_manager.setup_handler("toggle_wlan", self.toggle_wlan)
         self.__app.server_handlers_manager.setup_handler("is_wlan_active", self.is_wlan_active)
 
+    def __setup_app(self):
         self.__app.register_async_background_tasks(self.__mainloop)
         self.__app.register_background_tasks()
 
@@ -169,6 +170,8 @@ class Server:
 
         if self.__wlan is not None:
             self.__init_http_socket_servers()
+
+            self.__setup_app_server_handlers()
 
             self.__register_async_background_tasks()
             self.__setup_app()
