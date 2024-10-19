@@ -48,5 +48,5 @@ def url_for(endpoint_name: str,
     return endpoint_url
 
 
-def jsonify(content: dict) -> str:
+def jsonify(content: dict | list) -> str:
     return json.dumps(content)
