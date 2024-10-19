@@ -65,12 +65,9 @@ class Server:
             self.__wlan_enabled = True
 
     def toggle_wlan(self, enabled: bool):
-        self.__wlan.active(enabled)
-
-        if not enabled:
-            self.__wlan.disconnect()
-
-        self.__wlan_enabled = enabled
+        if enabled != self.__wlan_enabled:
+            self.__wlan.active(enabled)
+            self.__wlan_enabled = enabled
 
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
