@@ -1,7 +1,13 @@
+from lightberry.core.communication.request import Request
 from lightberry.core.communication.response import Response
 from lightberry.core.communication.file_response import FileResponse
 from lightberry.core.app_context import AppContext
+from lightberry.typing import TYPE_CHECKING
 import json
+
+
+if TYPE_CHECKING:
+    from typing import Type
 
 
 def redirect(url: str) -> Response:
@@ -43,10 +49,26 @@ def url_for(endpoint_name: str,
                 break
 
     if endpoint_url and external:
-        endpoint_url = f"{app.get_host()}{endpoint_url}"
+        endpoint_url = f"{app.server_handlers_manager.get_host()}{endpoint_url}"
 
     return endpoint_url
 
 
 def jsonify(content: dict | list) -> str:
     return json.dumps(content)
+
+
+def is_query_param_equal(request: Request, name: str, value_to_compare: any) -> bool:
+    if request.query_params is None:
+        return False
+
+    return True if request.query_params.get(name) == value_to_compare else False
+
+
+def cast_query_param_to(request: Request, name: str, cast_to: Type, fallback_value: any):
+    if request.query_params is None:
+        return None
+
+    param = request.query_params.get(name)
+
+    return cast_to(param) if param else fallback_value
