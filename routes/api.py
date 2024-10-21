@@ -22,6 +22,11 @@ async def params(request: Request, p1, p2):
     return Response(payload=jsonify(data))
 
 
+@api.route("/post-echo", methods=["POST"])
+async def post_echo(request: Request):
+    return Response(payload=jsonify(request.body))
+
+
 @api.after_request()
 async def after_request(response: Response):
     print("API router after request...")
