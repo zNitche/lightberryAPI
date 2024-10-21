@@ -80,7 +80,7 @@ class App:
         try:
             if request:
                 self.__print_debug(f"request header: {request.headers}")
-                self.__print_debug(f"request body: {request.body} | {type(request.body)}")
+                self.__print_debug(f"request body: {request.raw_body} | {type(request.raw_body)}")
 
                 response = await asyncio.wait_for(self.__process_request(request), self.config.TIMEOUT)
 

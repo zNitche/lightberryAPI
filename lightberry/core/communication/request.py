@@ -12,7 +12,9 @@ class Request:
         self.content_type: str | None = None
 
         self.headers: dict[str, ...] = {}
-        self.body: str | None = None
+        self.raw_body: str | None = None
+
+        self.body: any = None
 
         self.query_params: dict[str, ...] = {}
 
@@ -56,5 +58,5 @@ class Request:
                     self.query_params[split_string[0]] = requests_utils.url_encode(split_string[1])
 
     def parse_body(self, body_string: str):
-        body = body_string.replace("\r", "").replace("\n", "")
-        self.body = self.payload_parser.parse_payload(self.content_type, body) if self.content_type else None
+        self.raw_body = body_string.replace("\r", "").replace("\n", "")
+        self.body = self.payload_parser.parse_payload(self.content_type, self.raw_body) if self.content_type else None
