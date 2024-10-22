@@ -93,7 +93,8 @@ class Server:
             self.__wlan.connect(self.wifi_ssid, self.wifi_password)
 
             timeout_time = time.time() + self.__wifi_connection_timeout
-            while not self.__wlan.isconnected() or time.time() < timeout_time:
+
+            while not self.__wlan.isconnected() and time.time() < timeout_time:
                 await asyncio.sleep(0.5)
 
             if self.__wlan.isconnected():
