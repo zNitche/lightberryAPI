@@ -6,18 +6,18 @@ if TYPE_CHECKING:
 
 class ServerHandlersManager:
     def __init__(self):
-        self.__supported_handlers = self.get_handlers()
+        self.__supported_handlers = self.__get_supported_handlers_names()
 
         self.get_host: Callable[[], str | None] | None = None
         self.get_mac_address: Callable[[], str | None] | None = None
-        self.toggle_wlan: Callable[[bool], None] | None = None
+        self.toggle_wlan: Callable[[bool], bool] | None = None
         self.is_wlan_active: Callable[[], bool] | None = None
 
     def setup_handler(self, name: str, handler: Callable):
         if name in self.__supported_handlers:
             setattr(self, name, handler)
 
-    def get_handlers(self) -> list[str]:
+    def __get_supported_handlers_names(self) -> list[str]:
         return [
             "get_host",
             "get_mac_address",

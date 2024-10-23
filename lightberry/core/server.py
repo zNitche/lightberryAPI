@@ -69,6 +69,10 @@ class Server:
             self.__wlan.active(enabled)
             self.__wlan_enabled = enabled
 
+            return True
+
+        return False
+
     def __setup_wlan_as_client(self):
         self.__print_debug(f"setting up server as client...")
 
