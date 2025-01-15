@@ -18,6 +18,8 @@ class Response:
         header_rows = [f"HTTP/1.1 {self.status_code}",
                        f"CONTENT-LENGTH: {self.get_content_length()}"]
 
+        self.add_header(HTTPConsts.CONTENT_TYPE, self.content_type)
+
         for header, value in self.__headers.items():
             header_rows.append(f"{header}: {value}")
 

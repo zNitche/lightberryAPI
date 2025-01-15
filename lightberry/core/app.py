@@ -84,7 +84,7 @@ class App:
 
                 response = await asyncio.wait_for(self.__process_request(request), self.config.TIMEOUT)
 
-                self.__print_debug(f"response header: '{response.get_headers_string()}'")
+                self.__print_debug(f"response header: '{response.headers}'")
 
         except Exception as e:
             self.__print_debug(f"error while handing request", exception=e)
