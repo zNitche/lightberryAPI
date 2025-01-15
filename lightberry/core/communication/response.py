@@ -2,7 +2,11 @@ from lightberry.consts import HTTPConsts
 
 
 class Response:
-    def __init__(self, status_code: int = 200, content_type: str = HTTPConsts.CONTENT_TYPE_JSON, payload: str = None):
+    def __init__(self,
+                 status_code: int = 200,
+                 content_type: str = HTTPConsts.CONTENT_TYPE_JSON,
+                 payload: str = None):
+
         self.__headers: dict[str, ...] = {}
         self.status_code: int = status_code
         self.content_type: str = content_type
@@ -23,11 +27,7 @@ class Response:
         for header, value in self.__headers.items():
             header_rows.append(f"{header}: {value}")
 
-        self.add_header(HTTPConsts.CONTENT_TYPE, self.content_type)
-
-        header_string = "\r\n".join(header_rows)
-
-        return header_string
+        return "\r\n".join(header_rows) + "\r\n\r\n"
 
     @property
     def headers(self):
@@ -47,4 +47,4 @@ class Response:
         headers = self.get_headers_string()
         body = self.get_body()
 
-        return f"{headers}\r\n\r\n{body}"
+        return f"{headers}{body}"
