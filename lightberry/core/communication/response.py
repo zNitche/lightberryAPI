@@ -33,11 +33,11 @@ class Response:
     def headers(self):
         return self.__headers.copy()
 
-    def add_header(self, name: str, value: str | int):
+    def add_header(self, name: str, value: str | int, override: bool = False):
         if name is not None:
             normalized_name = name.upper()
 
-            if normalized_name not in self.__headers.keys():
+            if override or normalized_name not in self.__headers.keys():
                 self.__headers[normalized_name] = value
 
     def get_body(self) -> str:
