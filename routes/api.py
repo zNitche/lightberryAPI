@@ -15,6 +15,11 @@ async def healthcheck(request):
     return Response(200)
 
 
+@api.route("/hello-world", methods=["GET"])
+async def hello_world(request):
+    return Response(payload=jsonify({"hello": "world"}))
+
+
 @api.route("/params/:p1/next/:p2", methods=["GET"])
 async def params(request: Request, p1, p2):
     data = {"p1": p1, "p2": p2, "params": str(request.query_params)}
