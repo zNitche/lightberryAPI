@@ -40,9 +40,9 @@ requests handling.
 - support for SSL/TLS
 
 ### Development
-packages in `requirements.txt` are used for development / build
+packages in `requirements-dev.txt` are used for development / build
 ```
-pip3 install -r requirements.txt
+pip3 install -r requirements-dev.txt
 ```
 
 #### Code autocompletion
@@ -59,23 +59,7 @@ lightberry @ git+https://github.com/zNitche/lightberryAPI.git@v1.2.4
 ```
 
 #### Remote Shell
-for flashing pico you can use `rshell`
-
-enter REPL
-```
-rshell -p /dev/ttyUSBX
-repl
-```
-
-flash
-```
-rshell -p /dev/ttyUSBX -f commands/flash
-```
-
-clear all files
-```
-rshell -p /dev/ttyUSBX -f commands/wipe
-```
+for flashing pico you can use [rubix-cli](https://github.com/zNitche/rubix-cli)
 
 ### How to use it
 

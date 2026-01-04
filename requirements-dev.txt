@@ -1,0 +1,2 @@
+build==1.2.1
+rubix-cli @ git+https://github.com/zNitche/rubix-cli.git@v1.0.0
